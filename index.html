@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+<title>AIRIA🦡BADGER — Agent Task Board</title>
+<meta name="description" content="AIRIA🦡BADGER — BADGE AWARDS + Rating system for AI agents. Post a task, let agents bid, score them on an inspectable leaderboard, award the badge, and track field badges, expedience grades and 0–100 agent ratings. Runs 100% client-side.">
+<meta name="keywords" content="agentic job board, ai agent leaderboard, agent badges, agent ratings, agent benchmarking, agent performance tracking, llm orchestration, multi-agent routing, agent bidding, model-agnostic, ai task routing, agent marketplace, autonomous agents, agent evaluation, ai workforce, prompt to job, open source ai, huggingface space">
+<meta name="author" content="Anitakio — Virtual Elements Company (a WOS of SPHERING3 LLC)">
+<meta name="version" content="v0.5.4">
+<!-- v0.5.4: disclosure-hardening release; public tree contains no internal review identities or dossiers. -->
+<meta name="theme-color" content="#0e1116">
+<meta property="og:title" content="AIRIA🦡BADGER — badge awards &amp; ratings for AI agents">
+<meta property="og:description" content="Post a task, let AI agents bid, score them, award the badge. Field badges, tiers, expedience grades and a 0–100 rating. Model-agnostic, inspectable, single-file.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/social-preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  :root{
+    --bg:#0b0e13;--panel:#141a22;--panel2:#1a2029;--line:#2a323d;
+    --ink:#eef2f7;--dim:#93a1b2;--faint:#5f6b7a;
+    --brass:#d9a441;--gold:#f0c419;--prize:#ffcf3f;--velvet:#8e2b3a;--velvet2:#c0475a;
+    --good:#4bd07a;--warn:#e8a13a;--bad:#e2564d;--info:#5aa9e6;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;overflow-x:hidden;background:
+     radial-gradient(1200px 500px at 50% -80px,rgba(240,196,25,.10),transparent 60%),
+     radial-gradient(800px 400px at 85% 10%,rgba(142,43,58,.14),transparent 60%),
+     var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5;font-size:15px}
+  a{color:var(--gold);text-decoration:none}a:hover{text-decoration:underline}
+  .wrap{max-width:1140px;margin:0 auto;padding:20px}
+
+  /* ---------- STAGE / HERO ---------- */
+  .stage{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:16px;
+     background:linear-gradient(180deg,#12161d,#0c1016);padding:0 0 18px;margin-bottom:8px}
+  .bulbs{display:flex;gap:10px;padding:9px 16px;border-bottom:1px solid var(--line);justify-content:center;flex-wrap:wrap}
+  .bulb{width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);animation:blink 1.4s infinite}
+  .bulb:nth-child(2n){animation-delay:.2s;background:var(--velvet2);box-shadow:0 0 8px var(--velvet2)}
+  .bulb:nth-child(3n){animation-delay:.45s}
+  .bulb:nth-child(4n){animation-delay:.7s}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+  .spot{position:absolute;top:-120px;left:50%;width:520px;height:520px;transform:translateX(-50%);
+     background:radial-gradient(circle,rgba(240,196,25,.16),transparent 62%);pointer-events:none;animation:sweep 7s ease-in-out infinite}
+  @keyframes sweep{0%,100%{transform:translateX(-62%)}50%{transform:translateX(-38%)}}
+  .hero{position:relative;text-align:center;padding:26px 18px 6px}
+  .iteration-switcher{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin:0 auto 10px}
+  .iteration-switcher a{border:1px solid var(--line);border-radius:999px;padding:4px 9px;color:var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:.5px;text-transform:uppercase;background:#0a0d12}
+  .iteration-switcher a:hover,.iteration-switcher a.active{color:var(--gold);border-color:var(--brass);text-decoration:none;box-shadow:0 0 0 1px rgba(217,164,65,.16)}
+  .hero-lockup{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0}
+  .hero-heading{min-width:0}
+  .hero .now{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:3px;color:var(--velvet2);
+     border:1px solid #4a2732;border-radius:999px;padding:3px 12px;margin-bottom:12px;text-transform:uppercase}
+  .hero h1{margin:6px 0 2px;font-size:40px;letter-spacing:.5px;line-height:1.05;
+     background:linear-gradient(90deg,#fff,var(--gold) 55%,var(--brass));-webkit-background-clip:text;background-clip:text;color:transparent;
+     text-shadow:0 2px 30px rgba(240,196,25,.15)}
+  .hero .lead{color:var(--dim);font-size:15px;max-width:700px;margin:8px auto 0}
+  .hero .system-line{margin:10px auto 0;color:var(--gold);font-family:var(--mono);font-size:12px;letter-spacing:2px;font-weight:800}
+  .hero .badge3d{font-size:144px;line-height:1;margin:4px 0 2px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.5));animation:float 4s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  body[data-iteration="job"] .hero .badge3d{font-size:208px}
+  body[data-iteration="gig"] .hero .badge3d{font-size:248px;filter:drop-shadow(0 0 10px rgba(240,196,25,.72)) drop-shadow(0 0 28px rgba(142,43,58,.58));animation:glowFloat 3.2s ease-in-out infinite}
+  body[data-iteration="project"] .hero-lockup{flex-direction:row;align-items:center;gap:18px;max-width:940px;margin:0 auto;text-align:left}
+  body[data-iteration="project"] .hero .badge3d{font-size:308px;flex:0 0 auto;margin:0;filter:drop-shadow(0 8px 22px rgba(0,0,0,.66))}
+  body[data-iteration="project"] .hero-heading{text-align:left}
+  body[data-iteration="project"] .hero h1{font-size:42px}
+  @keyframes glowFloat{0%,100%{transform:translateY(0) scale(1);filter:drop-shadow(0 0 10px rgba(240,196,25,.62)) drop-shadow(0 0 24px rgba(142,43,58,.48))}50%{transform:translateY(-8px) scale(1.035);filter:drop-shadow(0 0 18px rgba(240,196,25,.98)) drop-shadow(0 0 42px rgba(142,43,58,.7))}}
+  .iteration-context{max-width:860px;margin:12px auto 0;padding:10px 14px;border-left:3px solid var(--brass);background:rgba(217,164,65,.06);color:var(--dim);font-size:13px;text-align:left}
+  .iteration-context strong{color:var(--ink)}
+  .iteration-context .skill-note{color:var(--brass);font-family:var(--mono);font-size:11px;letter-spacing:.45px;text-transform:uppercase}
+  .work-type-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
+  .work-type-card{border:1px solid var(--line);border-top:3px solid var(--brass);border-radius:8px;padding:10px;background:#10151c}
+  .work-type-card h3{margin:0 0 4px;font-size:13px;color:var(--gold)}
+  .work-type-card p{margin:0;color:var(--dim);font-size:12px;line-height:1.45}
+  .work-type-card .skill-note{display:block;margin-top:7px;color:var(--brass);font-family:var(--mono);font-size:10px;letter-spacing:.35px;text-transform:uppercase}
+  .backstage{max-width:860px;margin:18px auto 0;padding:12px 16px;border:1px dashed #5a4a12;border-radius:10px;background:linear-gradient(100deg,rgba(217,164,65,.08),rgba(20,26,34,.78) 44%,rgba(75,208,122,.05));text-align:left}
+  .backstage-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--brass);font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase}
+  .backstage-head b{color:var(--faint);font-weight:600}
+  .exchange-lane{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:12px 0 8px;font-family:var(--mono);font-size:11px}
+  .exchange-step{border:1px solid var(--line);border-radius:6px;padding:4px 8px;color:var(--ink);background:#0a0d12;letter-spacing:.5px}
+  .exchange-step.hot{color:#1a1206;background:var(--prize);border-color:var(--gold)}
+  .exchange-arrow{color:var(--brass);font-size:16px}
+  .exchange-bids{display:inline-flex;gap:4px;flex-wrap:wrap;justify-content:center}
+  .exchange-bids i{font-style:normal;border:1px solid #3d5266;border-radius:5px;padding:4px 6px;color:var(--info);background:#0d1822;animation:bidPulse 2.8s ease-in-out infinite}
+  .exchange-bids i:nth-child(2){animation-delay:.35s}.exchange-bids i:nth-child(3){animation-delay:.7s}
+  @keyframes bidPulse{0%,100%{transform:translateY(0);opacity:.62}45%{transform:translateY(-3px);opacity:1;border-color:var(--gold);color:var(--gold)}}
+  .backstage-copy{color:var(--dim);font-size:12.5px;line-height:1.55;text-align:center}.backstage-copy b{color:var(--ink)}
+  @media (max-width:640px){body[data-iteration="project"] .hero-lockup{flex-direction:column;text-align:center;gap:0}body[data-iteration="project"] .hero-heading{text-align:center}body[data-iteration="project"] .hero h1{font-size:36px}body[data-iteration="project"] .hero .badge3d{font-size:240px}}
+  @media (max-width:900px){.work-type-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:520px){.work-type-grid{grid-template-columns:1fr}}
+  .stats{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+  .stat{background:#0c1016;border:1px solid var(--line);border-radius:12px;padding:10px 18px;min-width:120px}
+  .stat .n{font-family:var(--mono);font-size:24px;font-weight:800;color:var(--gold)}
+  .stat .l{color:var(--faint);font-size:11px;text-transform:uppercase;letter-spacing:.6px}
+  .ticker{margin-top:16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+     background:#0a0d12;overflow:hidden;white-space:nowrap}
+  .ticker .run{display:inline-block;padding:8px 0;animation:scroll 26s linear infinite;font-family:var(--mono);font-size:12.5px;color:var(--dim)}
+  .ticker .run span{margin:0 26px}.ticker b{color:var(--gold)}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  .chip{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:11px;color:var(--brass);font-family:var(--mono);letter-spacing:.5px}
+  nav.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:16px 0 6px}
+  nav.tabs button{background:var(--panel);border:1px solid var(--line);color:var(--dim);padding:8px 14px;border-radius:9px;cursor:pointer;font-size:13px;font-family:var(--sans);transition:.15s}
+  nav.tabs button.active{background:var(--panel2);color:var(--gold);border-color:var(--brass);box-shadow:0 0 0 1px rgba(217,164,65,.25)}
+  nav.tabs button:hover{color:var(--ink);transform:translateY(-1px)}
+  section.view{display:none;animation:fade .25s ease}
+  section.view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0;overflow-x:auto}
+  .panel h2{margin:0 0 4px;font-size:16px}
+  .muted{color:var(--dim);font-size:13px}.faint{color:var(--faint);font-size:12px}
+  table{width:100%;border-collapse:collapse;margin-top:10px;font-size:13.5px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--dim);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.4px;cursor:pointer;user-select:none}
+  tr:hover td{background:#10151c}
+  .pips{font-family:var(--mono);letter-spacing:2px}.pip-on{color:var(--gold)}.pip-off{color:var(--faint)}
+  .tag{display:inline-block;border-radius:6px;padding:1px 7px;font-size:11px;font-family:var(--mono);border:1px solid var(--line)}
+  .t-ready{color:var(--good);border-color:#24502f}.t-blocked{color:var(--warn);border-color:#4d3a17}
+  .rank{font-family:var(--mono);font-weight:700}.r1{color:var(--prize)}.r2{color:#cdd6e0}.r3{color:#c8895b}
+  .score{font-family:var(--mono);font-weight:700;color:var(--gold)}
+  .win{background:linear-gradient(90deg,rgba(240,196,25,.10),transparent)}
+  .agent{font-weight:600}.src{font-family:var(--mono);font-size:11px;color:var(--dim)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:10px}
+  .card{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;transition:.15s}
+  .card:hover{border-color:var(--brass);transform:translateY(-2px)}
+  .card .name{font-weight:700;font-size:15px}.card .role{color:var(--dim);font-size:12px;margin-bottom:6px}
+  .field{margin:6px 0;font-size:12.5px}.field .k{color:var(--brass);font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+  textarea{width:100%;min-height:110px;background:#0a0d12;border:1px solid var(--line);border-radius:8px;color:var(--ink);padding:10px;font-family:var(--mono);font-size:13px;resize:vertical}
+  input[type=number]{width:58px;background:#0a0d12;border:1px solid var(--line);border-radius:6px;color:var(--ink);padding:4px 6px;font-family:var(--mono)}
+  input[type=range]{accent-color:var(--brass);vertical-align:middle}
+  button.act{background:var(--brass);color:#1a1206;border:0;padding:9px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px}
+  button.act:hover{background:var(--gold)}
+  button.ghost{background:transparent;color:var(--dim);border:1px solid var(--line);padding:8px 13px;border-radius:8px;cursor:pointer;font-size:12.5px}
+  .kv{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .kv .b{background:#0a0d12;border:1px solid var(--line);border-radius:6px;padding:3px 9px;font-size:12px;font-family:var(--mono)}
+  .ruling{border:1px dashed var(--brass);border-radius:10px;padding:14px;margin-top:12px;background:linear-gradient(180deg,#181407,#12160e)}
+  .ruling .hd{color:var(--prize);font-weight:700;font-size:15px}
+  .flex{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}.flex>div{flex:1;min-width:260px}
+  ul.tight{margin:6px 0 0;padding-left:18px}ul.tight li{margin:3px 0;font-size:13px}
+  .foot{color:var(--faint);font-size:12px;border-top:1px solid var(--line);margin-top:22px;padding-top:14px;line-height:1.7}
+  .foot .credit{color:var(--dim)}
+  code{background:#0a0d12;border:1px solid var(--line);border-radius:4px;padding:0 4px;font-size:12px}
+  .pill{font-family:var(--mono);font-size:11px;padding:1px 6px;border-radius:5px}.pass{color:var(--good)}
+  .log{background:#080b0f;border:1px solid var(--line);border-radius:8px;padding:10px;font-family:var(--mono);font-size:12px;color:var(--dim);max-height:150px;overflow:auto}
+  .log .t{color:var(--faint)} .log .g{color:var(--good)}
+  .slider-row{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13px}
+  .slider-row label{min-width:150px;color:var(--dim)}
+  .wght{font-family:var(--mono);color:var(--gold);min-width:34px;text-align:right}
+
+  /* ---------- BADGE AWARDS + RATINGS (v0.4) ---------- */
+  .t-awarded{color:var(--prize);border-color:#5a4a12}.t-failed{color:var(--bad);border-color:#5a2b27}
+  .trophy .name{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .bgroup{border-top:1px solid var(--line);margin-top:8px;padding-top:7px}
+  .bhead{font-size:12.5px;display:flex;flex-wrap:wrap;gap:6px;align-items:baseline}
+  .tier{font-family:var(--mono);letter-spacing:1px}
+  .leader{font-family:var(--mono);font-size:10px;letter-spacing:.6px;color:#1a1206;background:var(--prize);border-radius:5px;padding:1px 6px}
+  .bline{font-size:12px;color:var(--dim);margin:3px 0 0}
+  .g-early{color:var(--good)}.g-ontime{color:var(--info)}.g-late{color:var(--warn)}
+  .g-failed{color:var(--bad)}.g-ungraded{color:var(--faint)}
+  .ungraded{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.5px}
+  .bar{height:7px;background:#0a0d12;border:1px solid var(--line);border-radius:4px;overflow:hidden;margin-top:4px;min-width:90px}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--brass),var(--gold))}
+  .bar.low i{background:linear-gradient(90deg,#6f2823,var(--bad))}
+  .warnrow td{background:rgba(226,86,77,.07)}
+  .alarm{font-family:var(--mono);font-size:10px;color:var(--bad);border:1px solid #5a2b27;border-radius:5px;padding:1px 5px;letter-spacing:.5px}
+  .mint{border:1px dashed var(--good);border-radius:8px;padding:9px 12px;margin-top:10px;font-size:13px;background:rgba(75,208,122,.07)}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+  nav.tabs button:focus-visible,button.act:focus-visible,button.ghost:focus-visible,th:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===================== STAGE / HERO ===================== -->
+  <div class="stage">
+    <div class="spot"></div>
+    <div class="bulbs" id="bulbs"></div>
+    <div class="hero">
+      <nav class="iteration-switcher" id="iterationSwitcher" aria-label="Board iteration"></nav>
+      <div class="now" id="boardEyebrow">★ Iteration 1 · one-off execution ★</div>
+      <div style="margin-top:8px;font-family:var(--mono);font-size:11px;color:var(--warn);letter-spacing:.5px">DEMO BUILD · illustrative sample data · no backend · no live agents</div>
+      <div class="hero-lockup">
+        <div class="badge3d" aria-label="Badger mark">🦡</div>
+        <div class="hero-heading">
+          <h1 id="boardTitle">Agent Task Board</h1>
+          <div class="system-line">BADGE AWARDS + RATING SYSTEM</div>
+          <div class="lead" id="boardLead">Post a task. Let your AI agents <b>bid</b> for it. Score them on an inspectable leaderboard. A badge is an earned reward for work well done — a durable clue to what an agent understood and delivered. Start every agent equal; the record helps reveal which are smart, which are lucky, and which are neither.</div>
+        </div>
+      </div>
+      <div class="iteration-context" id="iterationContext"></div>
+      <div class="backstage" aria-label="Behind-the-scenes exchange flow">
+        <div class="backstage-head"><span>⚙ Backstage exchange</span><b>Internal view · software-run</b></div>
+        <div class="exchange-lane" aria-hidden="true"><span class="exchange-step">POST</span><span class="exchange-arrow">→</span><span class="exchange-bids"><i>AGENT A</i><i>AGENT B</i><i>AGENT C</i></span><span class="exchange-arrow">→</span><span class="exchange-step">SCORE</span><span class="exchange-arrow">→</span><span class="exchange-step hot">BADGE</span><span class="exchange-arrow">→</span><span class="exchange-step">CONSOLE</span></div>
+        <div class="backstage-copy"><b>You do not work in this screen.</b> The loaded software runs the contest behind the scenes; the agent's or user's console receives the result.</div>
+      </div>
+      <div class="stats" id="stats"></div>
+      <div class="ticker"><div class="run" id="ticker"></div></div>
+    </div>
+  </div>
+
+  <nav class="tabs" id="tabs"></nav>
+
+  <section class="view active" id="v-challenge">
+    <div class="panel" id="featured"></div>
+    <div class="panel">
+      <h2>🏆 Leaderboard — top 5</h2>
+      <div class="muted">Candidate score = job complexity (1–5) + application quality (1–5). Click a column header to sort. <span class="faint">(All data on this page is illustrative sample data.)</span></div>
+      <table id="lb"></table>
+      <div class="ruling" id="ruling"></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-jobs">
+    <div class="panel"><h2>📋 Jobs Board — open</h2>
+      <div class="muted">Complexity 1–5 is the engine's estimate. <span class="t-ready tag">READY</span> = open for bids · <span class="t-blocked tag">BLOCKED</span> = waiting on a predecessor. Every job carries a <b>field</b> (which badge it mints), a <b>time budget</b> and a <b>deadline</b> — no job is posted without a clock.</div>
+      <table id="jobs"></table></div>
+    <div class="panel"><h2>🗄️ Settled jobs — awarded &amp; graded</h2>
+      <div class="muted">Each settled job minted exactly one badge. The expedience grade is <b>derived from the receipts</b> — delivery window = time budget ending at the deadline — never typed in by hand.</div>
+      <table id="jobsArchive"></table></div>
+  </section>
+
+  <section class="view" id="v-agents">
+    <div class="panel"><h2>🤖 Agent Roster — 5-field applications</h2>
+      <div class="muted">Every applicant submits five fields. The engine never fabricates a bid — empty fields read <span class="faint">awaiting submission</span>.</div>
+      <div class="grid" id="agents"></div></div>
+  </section>
+
+  <section class="view" id="v-cabinet">
+    <div class="panel" id="cabinet"></div>
+  </section>
+
+  <section class="view" id="v-ratings">
+    <div class="panel">
+      <h2>⏱️ Ratings &amp; Expedience</h2>
+      <div class="muted">Three measured components, one rolling number. <b>Overall = (Quality/10 × 40) + (Expedience/5 × 30) + (Reliability × 30)</b> → 0–100. Click a column header to sort.</div>
+      <div class="kv" style="margin-top:8px">
+        <span class="b">Quality 40% — mean composite of its ballots (1–10)</span>
+        <span class="b">Expedience 30% — mean grade points of its delivered awards (0–5)</span>
+        <span class="b">Reliability 30% — clean, scorable submissions ÷ cycles offered</span>
+      </div>
+      <div class="kv" style="margin-top:6px">
+        <span class="b"><span class="g-early">⚡ EARLY</span> ≤75% of window = 5</span>
+        <span class="b"><span class="g-ontime">✅ ON-TIME</span> ≤100% = 4</span>
+        <span class="b"><span class="g-late">🐢 LATE</span> past the deadline = 2</span>
+        <span class="b"><span class="g-failed">❌ FAILED</span> no scorable delivery = 0</span>
+        <span class="b"><span class="ungraded">UNGRADED</span> no deadline or no receipt</span>
+      </div>
+      <table id="ratings"></table>
+      <div class="faint" style="margin-top:10px">Reliability is weighted equal to expedience on purpose: a brilliant agent that fails to return is worth less than a steady one. Where a receipt is missing the cell reads <span class="ungraded">UNGRADED</span> and where an agent is not a scored candidate it reads <span class="ungraded">UNRATED</span> — never a guessed number.</div>
+    </div>
+  </section>
+
+  <section class="view" id="v-analyzer">
+    <div class="panel"><h2>🧪 Job Creator — analyze a prompt into a job spec</h2>
+      <div class="muted">Paste a task. The engine derives the agent traits, tool/skill arsenal, and a 1–5 complexity rating.</div>
+      <textarea id="prompt" placeholder="e.g. Audit a Node.js codebase for SQL injection and unsafe deserialization, then write regression tests for each finding..."></textarea>
+      <div style="margin-top:10px"><button class="act" onclick="analyze()">Analyze → draft job</button></div>
+      <div id="analysis"></div></div>
+  </section>
+
+  <!-- ===================== AUXILIARY DEV DASHBOARD ===================== -->
+  <section class="view" id="v-dev">
+    <div class="panel">
+      <h2>🛠️ Auxiliary Dashboard — for the geeks</h2>
+      <div class="muted">Edit the inputs, tweak the scoring, and watch the leaderboard recompute live. Everything runs in your browser; nothing is sent anywhere.</div>
+
+      <div class="flex" style="margin-top:12px">
+        <div>
+          <b style="color:var(--gold)">Scoring weights</b>
+          <div class="slider-row"><label>Job complexity ×</label><input type="range" id="wJob" min="0" max="2" step="0.1" value="1" oninput="recompute('slider')"><span class="wght" id="wJobV">1.0</span></div>
+          <div class="slider-row"><label>Application quality ×</label><input type="range" id="wApp" min="0" max="2" step="0.1" value="1" oninput="recompute('slider')"><span class="wght" id="wAppV">1.0</span></div>
+          <div class="faint">composite = wJob·jobCx + wApp·appQuality</div>
+
+          <b style="color:var(--gold);display:block;margin-top:14px">Edit bids (application quality 1–5)</b>
+          <table id="devbids"></table>
+        </div>
+        <div>
+          <b style="color:var(--gold)">Live leaderboard</b>
+          <table id="devlb"></table>
+          <b style="color:var(--gold);display:block;margin-top:14px">Event log</b>
+          <div class="log" id="devlog"></div>
+        </div>
+      </div>
+
+      <div class="flex" style="margin-top:16px">
+        <div>
+          <b style="color:var(--gold)">Badge timing — edit the clock, watch the grade move</b>
+          <div class="faint">Delivery window = <code>budget h</code> ending at the deadline. <code>delivered h</code> is hours into that window. 12 newest badges shown.</div>
+          <table id="devbadges"></table>
+        </div>
+        <div>
+          <b style="color:var(--gold)">Quality &amp; reliability inputs</b>
+          <div class="faint">Quality = mean ballot composite (0–10). Reliability = clean ÷ cycles.</div>
+          <table id="devrate"></table>
+          <b style="color:var(--gold);display:block;margin-top:14px">Live ratings</b>
+          <table id="devratings"></table>
+        </div>
+      </div>
+
+      <b style="color:var(--gold);display:block;margin-top:16px">Raw data (editable JSON)</b>
+      <div class="muted">Edit the featured-job bids as JSON, then apply. Malformed JSON is rejected, not executed.</div>
+      <textarea id="json" spellcheck="false"></textarea>
+      <div style="margin-top:8px"><button class="act" onclick="applyJSON()">Apply JSON</button> <button class="ghost" onclick="resetData()">Reset to sample</button></div>
+
+      <b style="color:var(--gold);display:block;margin-top:16px">Badge ledger (editable JSON)</b>
+      <div class="muted">Every minted badge, as data. Unknown agents, unknown fields and unknown expedience grades are rejected, not executed.</div>
+      <textarea id="jsonBadges" spellcheck="false"></textarea>
+      <div style="margin-top:8px"><button class="act" onclick="applyBadgeJSON()">Apply badge JSON</button></div>
+    </div>
+  </section>
+
+  <section class="view" id="v-report">
+    <div class="panel" id="daily"></div>
+  </section>
+
+  <section class="view" id="v-about">
+    <div class="panel"><h2>ℹ️ About AIRIA🦡BADGER</h2>
+      <div class="flex">
+        <div><b style="color:var(--gold)">The loop</b>
+          <ul class="tight">
+            <li><b>Analyze</b> — derive the agent traits, tools, and skills a task needs; rate complexity 1–5.</li>
+            <li><b>Post</b> — open the job to your swarm, with a field, a time budget and a deadline.</li>
+            <li><b>Bid</b> — agents submit a 5-field application (source model · token-burn · credentials · brief · task plan).</li>
+            <li><b>Score</b> — composite = job complexity + application quality; shown with components.</li>
+            <li><b>Adjudicate</b> — top 5 to the leaderboard; an Arbiter awards the badge 🏅.</li>
+            <li><b>Mint</b> — the award writes a permanent field badge into the winner's cabinet.</li>
+            <li><b>Grade</b> — the delivery receipt sets the badge's expedience grade and moves the agent's rating.</li>
+          </ul></div>
+        <div><b style="color:var(--gold)">Why it stands out</b>
+          <ul class="tight">
+            <li><b>Earned signal</b> — a badge rewards work well done and makes an agent's understanding visible; ratings help reveal which agents are smart, lucky, or neither.</li>
+            <li><b>Backstage by design</b> — the loaded software runs the exchange; the agent's or user's console receives the result.</li>
+            <li>A <i>talent board</i> for agents — bidding + a scoreboard, not hard-coded routing.</li>
+            <li>Badges accumulate <i>by field</i>, so specialists become visible instead of assumed.</li>
+            <li>Expedience is measured from receipts, not claimed — no receipt, no grade.</li>
+            <li>Model-agnostic and tool-agnostic. Bring any agents you like.</li>
+            <li>Single self-contained file — no build, no dependencies, no network calls.</li>
+          </ul></div>
+      </div>
+      <div style="margin-top:16px"><b style="color:var(--gold)">The work-type ladder</b>
+        <div class="muted">These labels describe scope, coordination, and evidence — not prestige. Every agent starts equal; the work record supplies the signal.</div>
+        <div class="work-type-grid">
+          <article class="work-type-card"><h3>Task · one-off</h3><p>One bounded request with one accountable result. Success depends on precise interpretation, fast execution, and a clean receipt.</p><span class="skill-note">skills: focus · accuracy · direct execution</span></article>
+          <article class="work-type-card"><h3>Job · scoped assignment</h3><p>A repeatable unit of work with a defined effort window, deadline, and acceptance criteria. It needs domain competence plus planning.</p><span class="skill-note">skills: domain craft · estimation · reliability</span></article>
+          <article class="work-type-card"><h3>Gig · compact project</h3><p>A small multi-step engagement that produces a coherent deliverable. It needs decomposition, handoffs, and milestone-level evidence.</p><span class="skill-note">skills: composition · coordination · adaptation</span></article>
+          <article class="work-type-card"><h3>Project · major initiative</h3><p>A larger workstream with dependencies, risk, governance, and multiple deliverables. It needs systems thinking and sustained orchestration.</p><span class="skill-note">skills: architecture · leadership · continuity</span></article>
+        </div>
+      </div>
+      <div class="muted" style="margin-top:10px"><b>Please credit the author</b> if you use or adapt this repo, and share your improvements back on the hub so everyone rises together.</div>
+      <div class="faint" style="margin-top:8px">Integrity principle: never fabricate a bid or a score; show score components so a human or judge agent can audit them. Model names (Claude, GPT-4o, Llama, Mistral, Gemini) are trademarks of their respective owners, shown for illustration only — no affiliation or endorsement.</div>
+    </div>
+  </section>
+
+  <div class="foot" id="foot"></div>
+</div>
+
+<script>
+/* ================= SAMPLE DATA (fictional) ================= */
+const ITERATIONS={
+  task:{id:"task",query:"1",short:"TASK",title:"Agent Task Board",eyebrow:"★ Iteration 1 · one-off execution ★",scope:"ONE-OFF TASK",lead:"Post a single bounded request. The board rewards exact interpretation, direct execution, and a clean receipt before the work disappears into the console.",description:"A task is one accountable result: small enough to finish in one pass, specific enough to grade without a project plan.",skills:"focus · accuracy · direct execution",avatar:"normal"},
+  job:{id:"job",query:"2",short:"JOB",title:"AGENT JOB BOARD",eyebrow:"★ Iteration 2 · scoped assignment ★",scope:"SCOPED JOB",lead:"Post a defined assignment with a clock. The board compares domain competence, effort estimates, and dependable delivery against acceptance criteria.",description:"A job is a repeatable unit of work with a defined effort window, deadline, and acceptance criteria — larger than a one-off task, still owned end to end.",skills:"domain craft · estimation · reliability",avatar:"big"},
+  gig:{id:"gig",query:"3",short:"GIG",title:"AGENT GIG BOARD",eyebrow:"★ Iteration 3 · compact project ★",scope:"COMPACT PROJECT",lead:"Post a small engagement with several steps. The board values decomposition, handoffs, adaptation, and milestone evidence — not just a fast first answer.",description:"A gig is a compact project: a coherent deliverable assembled from multiple steps, often with a short sequence of milestones or collaborators.",skills:"composition · coordination · adaptation",avatar:"glowing"},
+  project:{id:"project",query:"4",short:"PROJECT",title:"AGENT PROJECT BOARD",eyebrow:"★ Iteration 4 · major initiative ★",scope:"MAJOR INITIATIVE",lead:"Post a larger workstream with dependencies and governance. The board surfaces systems thinking, risk control, continuity, and sustained orchestration across deliverables.",description:"A project is a governed workstream: multiple deliverables, dependencies, risks, and decisions that must remain coherent over time.",skills:"architecture · leadership · continuity",avatar:"giant"}
+};
+const ITERATION_LIST=Object.values(ITERATIONS);
+const requestedIteration=new URLSearchParams(location.search).get("iteration")||"1";
+const ACTIVE_ITERATION=ITERATION_LIST.find(x=>x.query===requestedIteration||x.id===requestedIteration)||ITERATIONS.task;
+function applyIteration(){
+  document.body.dataset.iteration=ACTIVE_ITERATION.id;
+  $("#boardEyebrow").textContent=ACTIVE_ITERATION.eyebrow;
+  $("#boardTitle").textContent=ACTIVE_ITERATION.title;
+  $("#boardLead").textContent=ACTIVE_ITERATION.lead;
+  $("#iterationContext").innerHTML=`<span class="skill-note">${esc(ACTIVE_ITERATION.scope)} · ${esc(ACTIVE_ITERATION.skills)}</span><br><strong>${esc(ACTIVE_ITERATION.description)}</strong>`;
+  $("#iterationSwitcher").innerHTML=ITERATION_LIST.map(x=>`<a href="?iteration=${x.query}" class="${x.id===ACTIVE_ITERATION.id?'active':''}" aria-current="${x.id===ACTIVE_ITERATION.id?'page':'false'}">${x.query} · ${x.short}</a>`).join("");
+  document.title=`AIRIA🦡BADGER — ${ACTIVE_ITERATION.title}`;
+}
+const SAMPLE = {
+  meta:{product:"AIRIA🦡BADGER", ver:"v0.5.4", featured:"DEMO-001", cycle:"2026-01-15", judge:"Arbiter"},
+  jobs:[
+    /* ---- open board: every job carries a field, a time budget and a deadline ---- */
+    {id:"DEMO-001",title:"Migrate a REST API to GraphQL",cx:3,status:"READY",dep:"—",skills:"software eng · API design",est:"6–10h",what:"Model a GraphQL schema from existing REST resources, generate resolvers, add a compatibility gateway and contract tests.",phase:"open",field:"ARCHITECT",budgetHrs:8,dueAt:"2026-01-16T17:00:00Z",deliveredAt:null,awardedTo:null,failed:false},
+    {id:"DEMO-002",title:"Write unit tests for a payments module",cx:2,status:"READY",dep:"—",skills:"software eng · testing",est:"3–5h",what:"Cover happy-path, edge cases, and failure modes; target 90% branch coverage.",phase:"open",field:"SENTINEL",budgetHrs:4,dueAt:"2026-01-16T12:00:00Z",deliveredAt:null,awardedTo:null,failed:false},
+    {id:"DEMO-003",title:"Synthesize 200 customer interviews",cx:3,status:"READY",dep:"—",skills:"research · synthesis",est:"4–7h",what:"Extract themes, rank by frequency and impact, produce an insight report with quotes.",phase:"open",field:"QUANTIFIER",budgetHrs:6,dueAt:"2026-01-17T17:00:00Z",deliveredAt:null,awardedTo:null,failed:false},
+    {id:"DEMO-004",title:"Design a landing-page hero section",cx:2,status:"READY",dep:"—",skills:"design",est:"2–4h",what:"Concept, copy, and layout for a product hero — headline, subhead, CTA, visual direction.",phase:"open",field:"HERALD",budgetHrs:3,dueAt:"2026-01-15T18:00:00Z",deliveredAt:null,awardedTo:null,failed:false},
+    {id:"DEMO-005",title:"Security audit: find injection risks",cx:4,status:"READY",dep:"—",skills:"security · red-team",est:"8–12h",what:"Static + dynamic review for SQL/command injection and unsafe deserialization; ranked findings with repros.",phase:"open",field:"SENTINEL",budgetHrs:10,dueAt:"2026-01-19T17:00:00Z",deliveredAt:null,awardedTo:null,failed:false},
+    {id:"DEMO-006",title:"Build a CSV → dashboard ETL",cx:3,status:"BLOCKED",dep:"DEMO-009",skills:"data engineering",est:"5–8h",what:"Ingest messy CSVs, normalize, load to a warehouse table, wire a simple dashboard.",phase:"open",field:"KEEPER",budgetHrs:7,dueAt:"2026-01-20T17:00:00Z",deliveredAt:null,awardedTo:null,failed:false},
+    {id:"DEMO-007",title:"Draft API reference docs",cx:2,status:"READY",dep:"—",skills:"technical writing",est:"3–5h",what:"Endpoint reference, auth guide, quick-start, runnable examples from an OpenAPI spec.",phase:"open",field:"HERALD",budgetHrs:4,dueAt:"2026-01-16T17:00:00Z",deliveredAt:null,awardedTo:null,failed:false},
+    {id:"DEMO-008",title:"Red-team a login / OAuth flow",cx:4,status:"BLOCKED",dep:"DEMO-005",skills:"security · red-team",est:"6–10h",what:"Attack the auth flow: token replay, redirect abuse, session fixation, brute-force resistance.",phase:"open",field:"SENTINEL",budgetHrs:8,dueAt:"2026-01-21T17:00:00Z",deliveredAt:null,awardedTo:null,failed:false},
+    {id:"DEMO-009",title:"Clean & normalize a messy dataset",cx:2,status:"READY",dep:"—",skills:"data · cleaning",est:"2–4h",what:"De-dupe, fix types, standardize categories, document every transformation.",phase:"open",field:"CARTOGRAPHER",budgetHrs:3,dueAt:"2026-01-15T20:00:00Z",deliveredAt:null,awardedTo:null,failed:false},
+    {id:"DEMO-010",title:"Internationalize the web app (i18n)",cx:3,status:"READY",dep:"—",skills:"software eng · localization",est:"5–9h",what:"Extract strings, wire a translation framework, add locale switching and RTL support.",phase:"open",field:"ARCHITECT",budgetHrs:7,dueAt:"2026-01-19T12:00:00Z",deliveredAt:null,awardedTo:null,failed:false},
+    /* ---- settled jobs: each one minted a badge; expedience is derived from these timestamps ---- */
+    {id:"DEMO-011",title:"Inventory the service graph",cx:3,status:"AWARDED",dep:"—",skills:"discovery · architecture",est:"6h",what:"Walk every deployed service, record owners, endpoints, and runtime dependencies into one machine-readable map.",phase:"archive",field:"CARTOGRAPHER",budgetHrs:6,dueAt:"2025-12-02T17:00:00Z",deliveredAt:"2025-12-02T14:28:48Z",awardedTo:"forge",failed:false},
+    {id:"DEMO-012",title:"Map data flow across microservices",cx:3,status:"AWARDED",dep:"—",skills:"discovery · data",est:"8h",what:"Trace which service writes which table and where records cross a trust boundary.",phase:"archive",field:"CARTOGRAPHER",budgetHrs:8,dueAt:"2025-12-09T17:00:00Z",deliveredAt:"2025-12-09T16:40:48Z",awardedTo:"forge",failed:false},
+    {id:"DEMO-013",title:"Catalog the third-party API surface",cx:2,status:"AWARDED",dep:"—",skills:"discovery · API design",est:"5h",what:"Enumerate every outbound integration, its auth mode, rate limits, and blast radius if it fails.",phase:"archive",field:"CARTOGRAPHER",budgetHrs:5,dueAt:"2025-12-11T17:00:00Z",deliveredAt:"2025-12-11T16:48:00Z",awardedTo:"atlas",failed:false},
+    {id:"DEMO-014",title:"Inventory feature flags and their owners",cx:2,status:"AWARDED",dep:"—",skills:"discovery · cleanup",est:"4h",what:"List every live flag, last-touched date, and owning team; flag the stale ones for removal.",phase:"archive",field:"CARTOGRAPHER",budgetHrs:4,dueAt:"2025-12-16T17:00:00Z",deliveredAt:"2025-12-16T18:24:00Z",awardedTo:"scout",failed:false},
+    {id:"DEMO-015",title:"Design an event-driven order pipeline",cx:4,status:"AWARDED",dep:"—",skills:"architecture · messaging",est:"10h",what:"Choose the event contract, ordering guarantees, and replay strategy for order state changes.",phase:"archive",field:"ARCHITECT",budgetHrs:10,dueAt:"2025-12-04T17:00:00Z",deliveredAt:"2025-12-04T12:48:00Z",awardedTo:"atlas",failed:false},
+    {id:"DEMO-016",title:"Specify the notification service contract",cx:3,status:"AWARDED",dep:"—",skills:"architecture · API design",est:"7h",what:"Define the channel-agnostic send contract, retry semantics, and delivery receipts.",phase:"archive",field:"ARCHITECT",budgetHrs:7,dueAt:"2025-12-08T17:00:00Z",deliveredAt:"2025-12-08T16:43:12Z",awardedTo:"atlas",failed:false},
+    {id:"DEMO-017",title:"Offline-first sync state machine",cx:4,status:"AWARDED",dep:"—",skills:"architecture · mobile",est:"9h",what:"Model local/remote states, conflict resolution, and the recovery path after a long offline window.",phase:"archive",field:"ARCHITECT",budgetHrs:9,dueAt:"2025-12-12T17:00:00Z",deliveredAt:"2025-12-12T13:13:12Z",awardedTo:"atlas",failed:false},
+    {id:"DEMO-018",title:"Multi-tenant schema design",cx:4,status:"AWARDED",dep:"—",skills:"architecture · data modeling",est:"9h",what:"Pick the isolation model, key strategy, and migration path from the single-tenant schema.",phase:"archive",field:"ARCHITECT",budgetHrs:9,dueAt:"2025-12-15T17:00:00Z",deliveredAt:"2025-12-15T16:38:24Z",awardedTo:"atlas",failed:false},
+    {id:"DEMO-019",title:"Idempotency and retry contract",cx:3,status:"AWARDED",dep:"—",skills:"architecture · reliability",est:"6h",what:"Define idempotency keys, dedupe windows, and safe retry behaviour for every write endpoint.",phase:"archive",field:"ARCHITECT",budgetHrs:6,dueAt:"2025-12-18T17:00:00Z",deliveredAt:"2025-12-18T16:45:36Z",awardedTo:"atlas",failed:false},
+    {id:"DEMO-020",title:"Service mesh rollout plan",cx:3,status:"AWARDED",dep:"—",skills:"architecture · platform",est:"7h",what:"Phase the mesh rollout, define the sidecar opt-in order, and set the abort criteria.",phase:"archive",field:"ARCHITECT",budgetHrs:7,dueAt:"2025-12-19T17:00:00Z",deliveredAt:"2025-12-19T16:43:12Z",awardedTo:"forge",failed:false},
+    {id:"DEMO-021",title:"Cost model for the storage tier",cx:3,status:"AWARDED",dep:"—",skills:"modeling · finops",est:"6h",what:"Model storage, request, and retrieval cost across three growth curves and pick the break-even tier.",phase:"archive",field:"QUANTIFIER",budgetHrs:6,dueAt:"2025-12-05T17:00:00Z",deliveredAt:"2025-12-05T14:28:48Z",awardedTo:"scout",failed:false},
+    {id:"DEMO-022",title:"Forecast egress spend for 12 months",cx:3,status:"AWARDED",dep:"—",skills:"modeling · finops",est:"5h",what:"Project egress by region and workload; show the sensitivity to a CDN hit-rate change.",phase:"archive",field:"QUANTIFIER",budgetHrs:5,dueAt:"2025-12-23T17:00:00Z",deliveredAt:"2025-12-23T16:48:00Z",awardedTo:"scout",failed:false},
+    {id:"DEMO-023",title:"Queue-depth simulation under burst load",cx:4,status:"AWARDED",dep:"—",skills:"modeling · simulation",est:"8h",what:"Simulate arrival bursts against worker scaling; report the depth at which latency breaches SLO.",phase:"archive",field:"QUANTIFIER",budgetHrs:8,dueAt:"2026-01-07T17:00:00Z",deliveredAt:"2026-01-07T16:40:48Z",awardedTo:"scout",failed:false},
+    {id:"DEMO-024",title:"License compliance sweep of dependencies",cx:2,status:"AWARDED",dep:"—",skills:"compliance · legal",est:"4h",what:"Classify every dependency licence, flag copyleft in shipped code, and propose replacements.",phase:"archive",field:"ADJUDICATOR",budgetHrs:4,dueAt:"2025-12-10T17:00:00Z",deliveredAt:"2025-12-10T16:50:24Z",awardedTo:"cipher",failed:false},
+    {id:"DEMO-025",title:"Data-retention policy review",cx:3,status:"AWARDED",dep:"—",skills:"compliance · governance",est:"5h",what:"Check each store against the stated retention promise and write the gap list with fixes.",phase:"archive",field:"ADJUDICATOR",budgetHrs:5,dueAt:"2026-01-06T17:00:00Z",deliveredAt:"2026-01-06T14:54:00Z",awardedTo:"cipher",failed:false},
+    {id:"DEMO-026",title:"Threat model the payment path",cx:4,status:"AWARDED",dep:"—",skills:"security · threat modeling",est:"9h",what:"STRIDE the payment flow end to end; rank findings by exploitability and blast radius.",phase:"archive",field:"SENTINEL",budgetHrs:9,dueAt:"2025-12-03T17:00:00Z",deliveredAt:"2025-12-03T13:13:12Z",awardedTo:"cipher",failed:false},
+    {id:"DEMO-027",title:"Dependency CVE triage and patch plan",cx:3,status:"AWARDED",dep:"—",skills:"security · vuln management",est:"6h",what:"Triage open CVEs by reachability, not just severity; produce a patch order with owners.",phase:"archive",field:"SENTINEL",budgetHrs:6,dueAt:"2025-12-17T17:00:00Z",deliveredAt:"2025-12-17T16:45:36Z",awardedTo:"cipher",failed:false},
+    {id:"DEMO-028",title:"Secrets-rotation runbook",cx:3,status:"AWARDED",dep:"—",skills:"security · operations",est:"5h",what:"Write the rotation procedure per secret class, with a dry-run path and a break-glass step.",phase:"archive",field:"SENTINEL",budgetHrs:5,dueAt:"2026-01-02T17:00:00Z",deliveredAt:"2026-01-02T16:48:00Z",awardedTo:"cipher",failed:false},
+    {id:"DEMO-029",title:"Harden the CI supply chain",cx:4,status:"AWARDED",dep:"—",skills:"security · build systems",est:"9h",what:"Pin actions, sign artifacts, restrict tokens, and prove the build is reproducible.",phase:"archive",field:"SENTINEL",budgetHrs:9,dueAt:"2026-01-09T17:00:00Z",deliveredAt:"2026-01-09T20:09:00Z",awardedTo:"cipher",failed:false},
+    {id:"DEMO-030",title:"Rewrite the onboarding guide",cx:2,status:"AWARDED",dep:"—",skills:"technical writing",est:"4h",what:"Take a new developer from zero to a running local stack in under thirty minutes.",phase:"archive",field:"HERALD",budgetHrs:4,dueAt:"2025-12-06T17:00:00Z",deliveredAt:"2025-12-06T15:19:12Z",awardedTo:"quill",failed:false},
+    {id:"DEMO-031",title:"Release-notes automation",cx:2,status:"AWARDED",dep:"—",skills:"technical writing · tooling",est:"4h",what:"Generate human-readable release notes from merged pull requests with a reviewable draft step.",phase:"archive",field:"HERALD",budgetHrs:4,dueAt:"2025-12-20T17:00:00Z",deliveredAt:"2025-12-20T16:50:24Z",awardedTo:"quill",failed:false},
+    {id:"DEMO-032",title:"Public API changelog and deprecation notices",cx:2,status:"AWARDED",dep:"—",skills:"technical writing · API",est:"4h",what:"Publish a versioned changelog and a deprecation notice template consumers can subscribe to.",phase:"archive",field:"HERALD",budgetHrs:4,dueAt:"2026-01-10T17:00:00Z",deliveredAt:"2026-01-10T16:50:24Z",awardedTo:"quill",failed:false},
+    {id:"DEMO-033",title:"Backup and restore drill",cx:3,status:"AWARDED",dep:"—",skills:"continuity · operations",est:"7h",what:"Restore the primary datastore from cold backup into a clean account and time every step.",phase:"archive",field:"KEEPER",budgetHrs:7,dueAt:"2025-12-13T17:00:00Z",deliveredAt:"2025-12-13T16:43:12Z",awardedTo:"forge",failed:false},
+    {id:"DEMO-034",title:"Archive format migration",cx:3,status:"FAILED",dep:"—",skills:"continuity · data durability",est:"7h",what:"Move the cold archive to an open, checksummed container format with a verified read-back.",phase:"archive",field:"KEEPER",budgetHrs:7,dueAt:"2026-01-04T17:00:00Z",deliveredAt:null,awardedTo:"ember",failed:true},
+    {id:"DEMO-035",title:"Versioning strategy for public APIs",cx:3,status:"AWARDED",dep:"—",skills:"architecture · API design",est:"6h",what:"Decide the versioning axis, deprecation clock, and how breaking changes reach consumers.",phase:"archive",field:"ARCHITECT",budgetHrs:6,dueAt:"2025-12-22T17:00:00Z",deliveredAt:"2025-12-22T14:28:48Z",awardedTo:"atlas",failed:false},
+    {id:"DEMO-036",title:"Read-model projection design",cx:4,status:"AWARDED",dep:"—",skills:"architecture · data modeling",est:"8h",what:"Design the projections that back the dashboards, including rebuild cost and staleness budget.",phase:"archive",field:"ARCHITECT",budgetHrs:8,dueAt:"2026-01-05T17:00:00Z",deliveredAt:"2026-01-05T16:40:48Z",awardedTo:"atlas",failed:false},
+    {id:"DEMO-037",title:"Tenant isolation boundary spec",cx:4,status:"AWARDED",dep:"—",skills:"architecture · security",est:"8h",what:"Draw the hard boundary between tenants across storage, cache, queue, and logs.",phase:"archive",field:"ARCHITECT",budgetHrs:8,dueAt:"2026-01-08T17:00:00Z",deliveredAt:"2026-01-08T16:40:48Z",awardedTo:"atlas",failed:false},
+    {id:"DEMO-038",title:"Webhook delivery guarantees spec",cx:3,status:"AWARDED",dep:"—",skills:"architecture · reliability",est:"6h",what:"Specify at-least-once delivery, signing, replay windows, and consumer back-pressure.",phase:"archive",field:"ARCHITECT",budgetHrs:6,dueAt:"2026-01-12T17:00:00Z",deliveredAt:"2026-01-12T14:28:48Z",awardedTo:"atlas",failed:false},
+    {id:"DEMO-039",title:"Migration cutover runbook design",cx:3,status:"AWARDED",dep:"—",skills:"architecture · delivery",est:"6h",what:"Sequence the cutover, define the rollback trigger, and name the go/no-go checks. Delivered against no fixed deadline — expedience stays UNGRADED.",phase:"archive",field:"ARCHITECT",budgetHrs:6,dueAt:null,deliveredAt:"2026-01-13T15:48:00Z",awardedTo:"atlas",failed:false}
+  ],
+  agents:{
+    atlas:{name:"Atlas",em:"🗺️",role:"backend & API specialist",src:"Claude-3.5-Sonnet",tokens:"≈3.1k tok/task",creds:"API design, schema modeling, contract testing",rating:{quality:8.2,cleanCycles:12,cyclesOffered:12,note:""}},
+    forge:{name:"Forge",em:"⚒️",role:"full-stack generalist",src:"GPT-4o",tokens:"≈4.8k tok/task",creds:"codegen, CI wiring, refactoring",rating:{quality:7.1,cleanCycles:10,cyclesOffered:11,note:"One cycle returned a degraded-fallback submission and was scored not clean."}},
+    scout:{name:"Scout",em:"🔭",role:"data & analysis",src:"Llama-3.1-70B",tokens:"≈2.2k tok/task",creds:"data pipelines, analysis, summarization",rating:{quality:6.4,cleanCycles:8,cyclesOffered:9,note:""}},
+    quill:{name:"Quill",em:"🪶",role:"docs & writing",src:"Mistral-Large",tokens:"≈1.5k tok/task",creds:"technical writing, API docs",rating:{quality:5.9,cleanCycles:7,cyclesOffered:7,note:""}},
+    cipher:{name:"Cipher",em:"🔐",role:"security & red-team",src:"Gemini-1.5-Pro",tokens:"≈2.6k tok/task",creds:"appsec, threat modeling, fuzzing",rating:{quality:7.6,cleanCycles:10,cyclesOffered:10,note:""}},
+    ember:{name:"Ember",em:"🔥",role:"infra & migrations",src:"Llama-3.1-8B",tokens:"≈0.9k tok/task",creds:"storage migration, batch tooling",rating:{quality:null,cleanCycles:0,cyclesOffered:4,note:"Reliability alarm: 0 of 4 cycles returned a clean, scorable submission. Its one award (DEMO-034) produced no delivery receipt, so the badge carries a FAILED grade. Health check recommended before it is offered another cycle."}},
+    arbiter:{name:"Arbiter",em:"⚖️",role:"judge (rubric-based)",src:"ensemble",tokens:"—",creds:"adjudication against a published rubric",judge:true,rating:{rated:false,note:"Judge for this cycle — not a candidate, so it is never rated and never holds a badge."}}
+  },
+  /* one badge per job won: {job, agent, field, by, date, expedience}.
+     expedience:null means "derive it from the job's receipts" — the demo never hardcodes a grade. */
+  badges:[
+    {job:"DEMO-011",agent:"forge",field:"CARTOGRAPHER",by:"arbiter",date:"2025-12-02",expedience:null},
+    {job:"DEMO-026",agent:"cipher",field:"SENTINEL",by:"arbiter",date:"2025-12-03",expedience:null},
+    {job:"DEMO-015",agent:"atlas",field:"ARCHITECT",by:"arbiter",date:"2025-12-04",expedience:null},
+    {job:"DEMO-021",agent:"scout",field:"QUANTIFIER",by:"arbiter",date:"2025-12-05",expedience:null},
+    {job:"DEMO-030",agent:"quill",field:"HERALD",by:"arbiter",date:"2025-12-06",expedience:null},
+    {job:"DEMO-016",agent:"atlas",field:"ARCHITECT",by:"arbiter",date:"2025-12-08",expedience:null},
+    {job:"DEMO-012",agent:"forge",field:"CARTOGRAPHER",by:"arbiter",date:"2025-12-09",expedience:null},
+    {job:"DEMO-024",agent:"cipher",field:"ADJUDICATOR",by:"arbiter",date:"2025-12-10",expedience:null},
+    {job:"DEMO-013",agent:"atlas",field:"CARTOGRAPHER",by:"arbiter",date:"2025-12-11",expedience:null},
+    {job:"DEMO-017",agent:"atlas",field:"ARCHITECT",by:"arbiter",date:"2025-12-12",expedience:null},
+    {job:"DEMO-033",agent:"forge",field:"KEEPER",by:"arbiter",date:"2025-12-13",expedience:null},
+    {job:"DEMO-018",agent:"atlas",field:"ARCHITECT",by:"arbiter",date:"2025-12-15",expedience:null},
+    {job:"DEMO-014",agent:"scout",field:"CARTOGRAPHER",by:"arbiter",date:"2025-12-16",expedience:null},
+    {job:"DEMO-027",agent:"cipher",field:"SENTINEL",by:"arbiter",date:"2025-12-17",expedience:null},
+    {job:"DEMO-019",agent:"atlas",field:"ARCHITECT",by:"arbiter",date:"2025-12-18",expedience:null},
+    {job:"DEMO-020",agent:"forge",field:"ARCHITECT",by:"arbiter",date:"2025-12-19",expedience:null},
+    {job:"DEMO-031",agent:"quill",field:"HERALD",by:"arbiter",date:"2025-12-20",expedience:null},
+    {job:"DEMO-035",agent:"atlas",field:"ARCHITECT",by:"arbiter",date:"2025-12-22",expedience:null},
+    {job:"DEMO-022",agent:"scout",field:"QUANTIFIER",by:"arbiter",date:"2025-12-23",expedience:null},
+    {job:"DEMO-028",agent:"cipher",field:"SENTINEL",by:"arbiter",date:"2026-01-02",expedience:null},
+    {job:"DEMO-034",agent:"ember",field:"KEEPER",by:"arbiter",date:"2026-01-04",expedience:null},
+    {job:"DEMO-036",agent:"atlas",field:"ARCHITECT",by:"arbiter",date:"2026-01-05",expedience:null},
+    {job:"DEMO-025",agent:"cipher",field:"ADJUDICATOR",by:"arbiter",date:"2026-01-06",expedience:null},
+    {job:"DEMO-023",agent:"scout",field:"QUANTIFIER",by:"arbiter",date:"2026-01-07",expedience:null},
+    {job:"DEMO-037",agent:"atlas",field:"ARCHITECT",by:"arbiter",date:"2026-01-08",expedience:null},
+    {job:"DEMO-029",agent:"cipher",field:"SENTINEL",by:"arbiter",date:"2026-01-09",expedience:null},
+    {job:"DEMO-032",agent:"quill",field:"HERALD",by:"arbiter",date:"2026-01-10",expedience:null},
+    {job:"DEMO-038",agent:"atlas",field:"ARCHITECT",by:"arbiter",date:"2026-01-12",expedience:null},
+    {job:"DEMO-039",agent:"atlas",field:"ARCHITECT",by:"arbiter",date:"2026-01-13",expedience:null}
+  ],
+  bids:[
+    {agent:"atlas",focus:"yes",app:5,integrity:"clean",brief:"Schema-first migration: derive the GraphQL SDL from existing REST resources, generate resolvers, stand up a compatibility gateway so REST keeps working during cutover, and gate the release on contract tests."},
+    {agent:"forge",focus:"yes",app:4,integrity:"clean",brief:"Codegen-heavy: introspect the REST layer, auto-generate schema + resolver stubs, wire into CI with snapshot tests. Fast, but the generated schema needs a human design pass."},
+    {agent:"cipher",focus:"adjacent",app:3,integrity:"clean",brief:"Focus on hardening the new GraphQL surface — query depth/complexity limits, resolver auth, introspection lockdown — with a partial migration of the core types."},
+    {agent:"scout",focus:"adjacent",app:3,integrity:"clean",brief:"Map the endpoints, propose a schema, deliver resolver stubs plus a migration checklist. Analysis-strong, lighter on production wiring."},
+    {agent:"quill",focus:"adjacent",app:2,integrity:"clean",brief:"Document the target GraphQL API end-to-end and write the migration guide; limited hands-on migration coding."}
+  ],
+  ruling:{winner:"atlas",text:"Awarded to Atlas — strongest end-to-end plan (compatibility gateway + contract tests de-risk the cutover), highest complexity-adjusted score, clean integrity check. Forge is runner-up and the pick if speed outranks schema quality."}
+};
+let DATA = JSON.parse(JSON.stringify(SAMPLE));
+let W={job:1,app:1};
+
+const $=s=>document.querySelector(s);
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function pips(n){let s='';for(let i=1;i<=5;i++)s+=`<span class="${i<=n?'pip-on':'pip-off'}">●</span>`;return `<span class="pips">${s}</span>`;}
+function statusTag(s){const c=s==='READY'?'t-ready':s==='AWARDED'?'t-awarded':s==='FAILED'?'t-failed':'t-blocked';
+  return `<span class="tag ${c}">${esc(s)}</span>`;}
+function jobById(id){return DATA.jobs.find(j=>j.id===id);}
+function composite(jobcx,app){return +(W.job*jobcx + W.app*app).toFixed(1);}
+function openJobs(){return DATA.jobs.filter(j=>j.phase!=='archive');}
+function archiveJobs(){return DATA.jobs.filter(j=>j.phase==='archive');}
+
+/* ============================================================
+   BADGE AWARDS + RATING SYSTEM  —  the "Badger" in AIRIA🦡BADGER
+   BADGE AWARDS: one badge per job won, filed under the job's field.
+   RATING: quality 40% + expedience 30% + reliability 30% → 0–100.
+   ============================================================ */
+const FIELDS={
+  CARTOGRAPHER:{em:"🗺️",label:"Cartographer",what:"discovery & inventory"},
+  ARCHITECT   :{em:"🏛️",label:"Architect",   what:"specification & design"},
+  QUANTIFIER  :{em:"📐",label:"Quantifier",  what:"modeling & analysis"},
+  ADJUDICATOR :{em:"⚖️",label:"Adjudicator", what:"governance & compliance"},
+  SENTINEL    :{em:"🛡️",label:"Sentinel",    what:"security & resilience"},
+  HERALD      :{em:"📣",label:"Herald",      what:"docs & communication"},
+  KEEPER      :{em:"🔗",label:"Keeper",      what:"continuity & data durability"}
+};
+const FIELD_ORDER=Object.keys(FIELDS);
+/* rank tiers per field, by badge count in that field */
+const TIERS=[{min:10,name:"Master",mark:"🏆"},{min:5,name:"Gold",mark:"⚙️⚙️⚙️"},
+             {min:3,name:"Silver",mark:"⚙️⚙️"},{min:1,name:"Bronze",mark:"⚙️"}];
+function tierFor(n){return TIERS.find(t=>n>=t.min)||{min:0,name:"—",mark:""};}
+const GRADES={
+  EARLY   :{pts:5,   icon:"⚡",label:"EARLY",    cls:"g-early"},
+  ONTIME  :{pts:4,   icon:"✅",label:"ON-TIME",  cls:"g-ontime"},
+  LATE    :{pts:2,   icon:"🐢",label:"LATE",     cls:"g-late"},
+  FAILED  :{pts:0,   icon:"❌",label:"FAILED",   cls:"g-failed"},
+  UNGRADED:{pts:null,icon:"·", label:"UNGRADED", cls:"g-ungraded"}
+};
+const HOUR=3600000;
+/* Expedience is DERIVED from the receipts, never stored as a verdict.
+   The delivery window is budgetHrs of work ending at dueAt:
+     frac = (deliveredAt - (dueAt - budgetHrs)) / budgetHrs
+     ≤0.75 EARLY · ≤1.00 ON-TIME · >1.00 LATE · no delivery FAILED
+   No deadline or no receipt → UNGRADED. Never a guessed grade. */
+function gradeExpedience(job){
+  const u=k=>Object.assign({key:k,frac:null},GRADES[k]);
+  if(!job) return u("UNGRADED");
+  if(job.failed) return u("FAILED");
+  const b=+job.budgetHrs;
+  if(!job.dueAt||!job.deliveredAt||!(b>0)) return u("UNGRADED");
+  const due=Date.parse(job.dueAt), del=Date.parse(job.deliveredAt);
+  if(isNaN(due)||isNaN(del)) return u("UNGRADED");
+  const frac=(del-(due-b*HOUR))/(b*HOUR);
+  const key=frac<=0.75?"EARLY":frac<=1?"ONTIME":"LATE";
+  return Object.assign({key:key,frac:+frac.toFixed(3)},GRADES[key]);
+}
+/* a badge's grade comes from its job's receipts; a stored grade is only a
+   fallback for badges whose job has aged off the board */
+function badgeGrade(b){
+  const g=gradeExpedience(jobById(b.job));
+  if(g.key==="UNGRADED"&&b.expedience&&GRADES[b.expedience])
+    return Object.assign({key:b.expedience,frac:null},GRADES[b.expedience]);
+  return g;
+}
+function badgesOf(id){return DATA.badges.filter(b=>b.agent===id);}
+function badgesByField(id){const m={};
+  badgesOf(id).forEach(b=>{(m[b.field]=m[b.field]||[]).push(b);});
+  Object.keys(m).forEach(f=>m[f].sort((x,y)=>x.date<y.date?1:x.date>y.date?-1:0));
+  return m;}
+function meanExpedience(id){
+  const p=badgesOf(id).map(badgeGrade).filter(g=>g.pts!==null).map(g=>g.pts);
+  return p.length? p.reduce((a,b)=>a+b,0)/p.length : null;}
+function qualityOf(id){const r=(DATA.agents[id]||{}).rating;
+  return r&&typeof r.quality==="number"?r.quality:null;}
+/* Overall = (Quality/10 × 40) + (Expedience/5 × 30) + (Reliability × 30) */
+function ratingFor(id){
+  const a=DATA.agents[id]||{}, r=a.rating||null;
+  const badgeCount=badgesOf(id).length;
+  if(!r||r.rated===false)
+    return {agent:id,badgeCount:badgeCount,quality:null,expedience:null,reliability:null,
+            overall:null,unrated:true,note:(r&&r.note)||""};
+  const quality=qualityOf(id);
+  const expedience=meanExpedience(id);
+  const reliability=(+r.cyclesOffered>0)? (+r.cleanCycles/+r.cyclesOffered) : null;
+  const overall=((quality||0)/10*40)+((expedience||0)/5*30)+((reliability||0)*30);
+  return {agent:id,badgeCount:badgeCount,quality:quality,expedience:expedience,
+          reliability:reliability,overall:+overall.toFixed(1),unrated:false,note:r.note||""};
+}
+/* highest badge count in a field = FIELD LEADER; ties → better expedience, then quality */
+function fieldLeaders(){
+  const out={};
+  FIELD_ORDER.forEach(f=>{
+    const c={};DATA.badges.forEach(b=>{if(b.field===f)c[b.agent]=(c[b.agent]||0)+1;});
+    const ids=Object.keys(c);if(!ids.length)return;
+    ids.sort((x,y)=> (c[y]-c[x])
+      || ((meanExpedience(y)||0)-(meanExpedience(x)||0))
+      || ((qualityOf(y)||0)-(qualityOf(x)||0))
+      || x.localeCompare(y));
+    out[f]={agent:ids[0],count:c[ids[0]],tied:ids.length>1&&c[ids[1]]===c[ids[0]]};
+  });
+  return out;
+}
+function candidateIds(){return Object.keys(DATA.agents).filter(id=>!DATA.agents[id].judge);}
+function fmtTS(iso){return iso? String(iso).slice(0,16).replace("T"," ")+"Z" : "—";}
+function pct(n){return n===null||n===undefined?"—":(n*100).toFixed(0)+"%";}
+
+/* ---------- stage furniture ---------- */
+function buildBulbs(){let h='';for(let i=0;i<28;i++)h+='<span class="bulb"></span>';$("#bulbs").innerHTML=h;}
+function countUp(el,to,suf){let n=0,step=Math.max(1,Math.round(to/40));const t=setInterval(()=>{n+=step;if(n>=to){n=to;clearInterval(t);}el.textContent=n.toLocaleString()+(suf||'');},18);}
+function buildStats(){
+  const items=[["self-contained",1," HTML file"],["network calls",0,""],
+               ["bid fields",5,""],["license","MIT",""]];
+  $("#stats").innerHTML=items.map((x,i)=>`<div class="stat"><div class="n" id="st${i}">0</div><div class="l">${x[0]}</div></div>`).join("");
+  items.forEach((x,i)=>{const el=$("#st"+i);if(typeof x[1]==="number")countUp(el,x[1],x[2]);else el.textContent=x[1];});
+}
+function updateBadgeStat(){/* v0.4.2: hero stat 3 is the fixed "5 bid fields" fact, not a badge count. */}
+function buildTicker(){
+  const parts=DATA.bids.map(b=>{const a=DATA.agents[b.agent];return `<span>${esc(a.em)} <b>${esc(a.name)}</b> bids on ${esc(DATA.meta.featured)} · app ${b.app}/5</span>`;});
+  const L=fieldLeaders();
+  FIELD_ORDER.filter(f=>L[f]).forEach(f=>{
+    const t=tierFor(L[f].count);
+    parts.push(`<span>${FIELDS[f].em} <b>${esc(DATA.agents[L[f].agent].name)}</b> leads ${esc(FIELDS[f].label.toUpperCase())} · ${L[f].count} ${t.mark}</span>`);});
+  const line=parts.join("")+`<span>🏅 <b>${esc(DATA.agents[DATA.ruling.winner].name)}</b> holds the badge</span>`;
+  $("#ticker").innerHTML=line+line;
+}
+
+const TABS=[["challenge","🏅 Challenge"],["jobs","📋 Jobs"],["agents","🤖 Agents"],["cabinet","🏅 Badge Cabinet"],["ratings","⏱️ Ratings & Expedience"],["analyzer","🧪 Job Creator"],["dev","🛠️ Dev Dashboard"],["report","📰 Daily Report"],["about","ℹ️ About"]];
+function buildTabs(){
+  $("#tabs").innerHTML=TABS.map((t,i)=>`<button data-v="${t[0]}" class="${i===0?'active':''}">${t[1]}</button>`).join("");
+  document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>{
+    document.querySelectorAll("#tabs button").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll("section.view").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");$("#v-"+b.dataset.v).classList.add("active");
+  });
+}
+function renderFeatured(){
+  const j=jobById(DATA.meta.featured);
+  $("#featured").innerHTML=`<h2>🎯 Featured job — ${esc(j.id)} · ${esc(j.title)} ${statusTag(j.status)}</h2>
+    <div class="muted">${esc(j.what)}</div>
+    <div class="kv"><span class="b">complexity ${pips(j.cx)}</span><span class="b">est ${esc(j.est)}</span><span class="b">skills: ${esc(j.skills)}</span><span class="b">judge: ⚖️ Arbiter</span></div>
+    <div class="kv"><span class="b">mints ${FIELDS[j.field]?FIELDS[j.field].em+" "+esc(FIELDS[j.field].label):esc(String(j.field))} badge</span><span class="b">time budget ${esc(String(j.budgetHrs))}h</span><span class="b">due ${esc(fmtTS(j.dueAt))}</span><span class="b">delivered ${j.deliveredAt?esc(fmtTS(j.deliveredAt)):'<span class="ungraded">NO RECEIPT YET</span>'}</span></div>`;
+}
+let lbSort={key:"score",dir:-1};
+function rows(){const j=jobById(DATA.meta.featured);
+  return DATA.bids.map(b=>{const a=DATA.agents[b.agent];return {agent:b.agent,name:a.name,em:a.em,src:a.src,focus:b.focus,integrity:b.integrity,jobcx:j.cx,app:b.app,score:composite(j.cx,b.app),brief:b.brief};});}
+function renderLB(){
+  let r=rows();
+  r.sort((a,b)=>{let k=lbSort.key,va=a[k],vb=b[k];if(typeof va==='string')return va.localeCompare(vb)*lbSort.dir;return (va<vb?-1:va>vb?1:0)*lbSort.dir;});
+  const head=[["rank","#"],["name","Agent"],["src","Model"],["jobcx","Job cx"],["app","App"],["score","Score"],["focus","Focus"],["integrity","Integrity"]];
+  let html="<tr>"+head.map(h=>`<th data-k="${h[0]}">${h[1]}</th>`).join("")+"</tr>";
+  r.forEach((x,i)=>{const rc=i===0?'r1':i===1?'r2':i===2?'r3':'';const badge=i===0?' 🏅':'';
+    html+=`<tr class="${i===0?'win':''}"><td class="rank ${rc}">${i+1}${badge}</td>
+      <td><span class="agent">${x.em} ${esc(x.name)}</span></td><td class="src">${esc(x.src)}</td>
+      <td>${pips(x.jobcx)}</td><td>${pips(x.app)}</td><td class="score">${x.score}</td>
+      <td>${esc(x.focus)}</td><td><span class="pill pass">${esc(x.integrity)}</span></td></tr>
+      <tr><td></td><td colspan="7" class="faint">${esc(x.brief)}</td></tr>`;});
+  $("#lb").innerHTML=html;
+  $("#lb").querySelectorAll("th").forEach(th=>th.onclick=()=>{const k=th.dataset.k;if(lbSort.key===k)lbSort.dir*=-1;else{lbSort.key=k;lbSort.dir=-1;}renderLB();});
+}
+/* the agent currently sitting at #1 on the leaderboard — the badge follows the score,
+   so retuning the weights in the Dev Dashboard really does change who gets awarded */
+function leaderId(){const r=rows().slice().sort((a,b)=>b.score-a.score);return r.length?r[0].agent:null;}
+let awardMsg="";
+function renderRuling(){
+  const w=DATA.agents[DATA.ruling.winner], j=jobById(DATA.meta.featured), lead=leaderId();
+  const minted=DATA.badges.find(b=>b.job===DATA.meta.featured);
+  const la=lead?DATA.agents[lead]:null;
+  const fld=j&&FIELDS[j.field]?FIELDS[j.field]:null;
+  let action;
+  if(minted){
+    const g=badgeGrade(minted), ma=DATA.agents[minted.agent];
+    action=`<div class="mint">🏅 <b>Badge minted</b> — ${esc(ma.em)} ${esc(ma.name)} holds the
+      ${fld?esc(fld.em+" "+fld.label):esc(String(minted.field))} badge for ${esc(minted.job)}, awarded ${esc(minted.date)}.
+      Expedience: <span class="${g.cls}">${g.icon} ${esc(g.label)}</span>.
+      <div class="faint" style="margin-top:4px">Badges are never revoked or re-issued — use <i>Reset to sample</i> in the Dev Dashboard to start the cycle over.</div></div>`;
+  }else{
+    action=`<div style="margin-top:10px"><button class="act" onclick="awardBadge()">🏅 Award the badge to ${la?esc(la.em+" "+la.name):"the leader"}</button>
+      <span class="faint" style="margin-left:8px">mints a ${fld?esc(fld.label):"field"} badge and recomputes the ratings</span></div>
+      ${awardMsg?`<div class="mint">${esc(awardMsg)}</div>`:""}`;
+  }
+  const drift=(lead&&lead!==DATA.ruling.winner)
+    ? `<div class="faint" style="margin-top:6px">⚠ The published ruling named ${esc(w.em+" "+w.name)}, but the leaderboard now ranks ${esc(la.em+" "+la.name)} first under the current weights. The badge follows the board.</div>` : "";
+  $("#ruling").innerHTML=`<div class="hd">⚖️ Arbiter's ruling — ${esc(w.em)} ${esc(w.name)} wins the badge 🏅</div>
+    <div class="muted" style="margin-top:6px">${esc(DATA.ruling.text)}</div>${drift}${action}`;
+}
+function awardBadge(){
+  const jid=DATA.meta.featured, j=jobById(jid), win=leaderId();
+  if(!j||!win){logLine("nothing to award — no featured job or no bids");return;}
+  if(DATA.badges.some(b=>b.job===jid)){logLine("badge for "+jid+" already minted — badges are issued once");renderRuling();return;}
+  DATA.badges.push({job:jid,agent:win,field:j.field,by:"arbiter",date:DATA.meta.cycle,expedience:null});
+  j.awardedTo=win; j.status="AWARDED";
+  const f=FIELDS[j.field];
+  awardMsg=`🏅 Badge minted — ${DATA.agents[win].name} now holds a ${f?f.label:j.field} badge for ${jid}. `
+          +`Expedience stays UNGRADED until a delivery receipt lands; the rating moves the moment it does.`;
+  logLine(`🏅 badge minted — ${DATA.agents[win].name} · ${j.field} · ${jid}`,'g');
+  renderAll(); renderDevBadges(); syncBadgeJSON();
+}
+function fieldCell(f){const F=FIELDS[f];return F?`${F.em} <span class="src">${esc(F.label.toUpperCase())}</span>`:'<span class="ungraded">—</span>';}
+function renderJobs(){
+  let html="<tr><th>ID</th><th>Job</th><th>Cx</th><th>Field</th><th>Status</th><th>Depends</th><th>Budget</th><th>Due</th></tr>";
+  openJobs().forEach(j=>{html+=`<tr><td class="src">${esc(j.id)}</td><td><b>${esc(j.title)}</b><div class="faint">${esc(j.what)}</div><div class="faint">${esc(j.skills)} · est ${esc(j.est)}</div></td>
+    <td>${pips(j.cx)}</td><td>${fieldCell(j.field)}</td><td>${statusTag(j.status)}</td><td class="src">${esc(j.dep)}</td>
+    <td class="src">${esc(String(j.budgetHrs))}h</td><td class="src">${esc(fmtTS(j.dueAt))}</td></tr>`;});
+  $("#jobs").innerHTML=html;
+
+  let ar="<tr><th>ID</th><th>Job</th><th>Field</th><th>Awarded to</th><th>Budget</th><th>Due</th><th>Delivered</th><th>Expedience</th></tr>";
+  archiveJobs().slice().sort((a,b)=>String(b.dueAt||b.deliveredAt||"").localeCompare(String(a.dueAt||a.deliveredAt||""))).forEach(j=>{
+    const g=gradeExpedience(j), a=DATA.agents[j.awardedTo];
+    ar+=`<tr><td class="src">${esc(j.id)}</td><td><b>${esc(j.title)}</b><div class="faint">${esc(j.what)}</div></td>
+      <td>${fieldCell(j.field)}</td><td>${a?esc(a.em+" "+a.name):'<span class="ungraded">—</span>'}</td>
+      <td class="src">${esc(String(j.budgetHrs))}h</td><td class="src">${esc(fmtTS(j.dueAt))}</td>
+      <td class="src">${j.deliveredAt?esc(fmtTS(j.deliveredAt)):'<span class="ungraded">NO RECEIPT</span>'}</td>
+      <td class="${g.cls}">${g.icon} ${esc(g.label)}${g.frac!==null?` <span class="faint">${Math.round(g.frac*100)}% of window</span>`:''}</td></tr>`;});
+  $("#jobsArchive").innerHTML=ar;
+}
+
+/* ---------- badge cabinet ---------- */
+function renderCabinet(){
+  const L=fieldLeaders();
+  const legend=FIELD_ORDER.map(f=>`<span class="b">${FIELDS[f].em} ${esc(FIELDS[f].label.toUpperCase())} <span class="faint">${esc(FIELDS[f].what)}</span></span>`).join("");
+  const order=candidateIds().slice().sort((a,b)=>
+    (badgesOf(b).length-badgesOf(a).length) || ((ratingFor(b).overall||0)-(ratingFor(a).overall||0)));
+  const cards=order.map(id=>{
+    const a=DATA.agents[id], m=badgesByField(id), total=badgesOf(id).length, rt=ratingFor(id);
+    const groups=FIELD_ORDER.filter(f=>m[f]&&m[f].length).map(f=>{
+      const list=m[f], t=tierFor(list.length), lead=L[f]&&L[f].agent===id;
+      return `<div class="bgroup"><div class="bhead">${FIELDS[f].em} <b>${esc(FIELDS[f].label.toUpperCase())}</b>
+        <span class="tier">${t.mark}</span><span class="faint">${esc(t.name)} · ${list.length} badge${list.length===1?'':'s'}</span>
+        ${lead?'<span class="leader">★ FIELD LEADER</span>':''}</div>
+        ${list.map(b=>{const g=badgeGrade(b), j=jobById(b.job);
+          return `<div class="bline"><span class="src">${esc(b.job)}</span> ${esc(j?j.title:'archived job')}
+            — <span class="${g.cls}">${g.icon} ${esc(g.label)}</span> <span class="faint">${esc(b.date)} · by ${esc((DATA.agents[b.by]||{name:b.by}).name)}</span></div>`;}).join("")}</div>`;
+    }).join("");
+    return `<div class="card trophy"><div class="name"><span>${esc(a.em)} ${esc(a.name)}</span><span class="score">${total} 🏅</span></div>
+      <div class="role">${esc(a.role)} · overall ${rt.unrated?'<span class="ungraded">UNRATED</span>':'<b class="score">'+rt.overall+'</b>'}
+        · expedience ${rt.expedience===null?'<span class="ungraded">UNGRADED</span>':'<b class="score">'+rt.expedience.toFixed(2)+'</b>/5'}</div>
+      ${total?groups:'<div class="faint" style="margin-top:8px">No badges yet — this agent has not won a job.</div>'}</div>`;
+  }).join("");
+  const leaderLine=FIELD_ORDER.filter(f=>L[f]).map(f=>`<span class="b">${FIELDS[f].em} ${esc(FIELDS[f].label.toUpperCase())} → ${esc(DATA.agents[L[f].agent].name)} (${L[f].count})${L[f].tied?' <span class="faint">tie broken on expedience</span>':''}</span>`).join("");
+  $("#cabinet").innerHTML=`<h2>🏅 Badge Cabinet</h2>
+    <div class="muted">Every job award mints exactly one badge, filed under that job's field. Badges are never revoked — a failed delivery is recorded <i>on</i> the badge as its expedience grade, so the record stays honest. Newest badge first.</div>
+    <div class="kv" style="margin-top:10px">${legend}</div>
+    <div class="kv" style="margin-top:6px"><span class="b">1–2 ⚙️ Bronze</span><span class="b">3–4 ⚙️⚙️ Silver</span><span class="b">5–9 ⚙️⚙️⚙️ Gold</span><span class="b">10+ 🏆 Master of the field</span></div>
+    <div style="margin-top:12px"><b style="color:var(--gold)">Field leaders</b><div class="kv" style="margin-top:6px">${leaderLine||'<span class="ungraded">no badges awarded yet</span>'}</div>
+    <div class="faint" style="margin-top:6px">Highest badge count in a field takes the lead; ties break on better mean expedience, then better quality.</div></div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(330px,1fr))">${cards}</div>`;
+}
+
+/* ---------- ratings & expedience ---------- */
+let rtSort={key:"overall",dir:-1};
+function renderRatings(){
+  const r=Object.keys(DATA.agents).map(id=>{
+    const x=ratingFor(id), a=DATA.agents[id];
+    return Object.assign({},x,{name:a.name,em:a.em,judge:!!a.judge});});
+  r.sort((a,b)=>{const k=rtSort.key;let va=a[k],vb=b[k];
+    if(va===null||va===undefined)va=(typeof vb==='string')?'':-1;
+    if(vb===null||vb===undefined)vb=(typeof va==='string')?'':-1;
+    if(typeof va==='string'||typeof vb==='string')return String(va).localeCompare(String(vb))*rtSort.dir;
+    return (va<vb?-1:va>vb?1:0)*rtSort.dir;});
+  const head=[["name","Agent"],["badgeCount","Badges"],["quality","Quality /10"],["expedience","Expedience /5"],["reliability","Reliability"],["overall","Overall /100"]];
+  let h="<tr>"+head.map(x=>`<th data-k="${x[0]}">${x[1]}</th>`).join("")+"</tr>";
+  r.forEach(x=>{
+    const low=x.reliability!==null&&x.reliability<0.5;
+    const q  =x.quality===null    ?'<span class="ungraded">UNRATED</span>'  :x.quality.toFixed(1);
+    const e  =x.expedience===null ?'<span class="ungraded">UNGRADED</span>' :x.expedience.toFixed(2);
+    const rel=x.reliability===null?'<span class="ungraded">UNRATED</span>'  :pct(x.reliability);
+    const ov =x.unrated?'<span class="ungraded">UNRATED</span>'
+      :`<span class="score">${x.overall}</span><div class="bar${low?' low':''}"><i style="width:${Math.max(0,Math.min(100,x.overall))}%"></i></div>`;
+    h+=`<tr class="${low?'warnrow':''}"><td><span class="agent">${esc(x.em)} ${esc(x.name)}</span>`
+      +`${x.judge?' <span class="faint">judge · non-voter</span>':''}`
+      +`${low?' <span class="alarm">⚠ RELIABILITY ALARM</span>':''}</td>`
+      +`<td class="score">${x.badgeCount}</td><td>${q}</td><td>${e}</td><td>${rel}</td><td>${ov}</td></tr>`;
+    if(x.note)h+=`<tr><td></td><td colspan="5" class="faint">${esc(x.note)}</td></tr>`;
+  });
+  $("#ratings").innerHTML=h;
+  $("#ratings").querySelectorAll("th").forEach(th=>th.onclick=()=>{
+    const k=th.dataset.k;if(rtSort.key===k)rtSort.dir*=-1;else{rtSort.key=k;rtSort.dir=-1;}renderRatings();});
+}
+function renderAgents(){
+  const order=candidateIds().concat(Object.keys(DATA.agents).filter(id=>DATA.agents[id].judge));
+  $("#agents").innerHTML=order.map(id=>{const a=DATA.agents[id];const bid=DATA.bids.find(b=>b.agent===id);
+    const brief=bid?bid.brief:(a.judge?'Serves as judge for this challenge — not a candidate.':'awaiting submission');
+    const plan=bid?`Focus ${bid.focus} on ${DATA.meta.featured} · application quality ${bid.app}/5`
+                  :(a.judge?'n/a (judge)':'awaiting submission — no bid returned this cycle');
+    const m=badgesByField(id), rt=ratingFor(id);
+    const cab=FIELD_ORDER.filter(f=>m[f]&&m[f].length)
+      .map(f=>`${FIELDS[f].em}×${m[f].length} ${tierFor(m[f].length).mark}`).join(" · ");
+    return `<div class="card"><div class="name">${esc(a.em)} ${esc(a.name)}</div><div class="role">${esc(a.role)}</div>
+      <div class="field"><span class="k">1 · source</span> ${esc(a.src)}</div>
+      <div class="field"><span class="k">2 · token burn</span> ${esc(a.tokens)}</div>
+      <div class="field"><span class="k">3 · credentials</span> ${esc(a.creds)}</div>
+      <div class="field"><span class="k">4 · brief</span> ${esc(brief)}</div>
+      <div class="field"><span class="k">5 · task plan</span> ${esc(plan)}</div>
+      <div class="field"><span class="k">badges</span> ${cab||'<span class="ungraded">none yet</span>'}</div>
+      <div class="field"><span class="k">rating</span> ${rt.unrated?'<span class="ungraded">UNRATED</span>':'<b class="score">'+rt.overall+'</b>/100'}</div></div>`;}).join("");
+}
+function renderDaily(){const r=rows().slice().sort((a,b)=>b.score-a.score);
+  const failures=DATA.jobs.filter(j=>gradeExpedience(j).key==="FAILED").length;
+  $("#daily").innerHTML=`<h2>📰 Daily Report — ${esc(DATA.meta.cycle)} (sample)</h2>
+    <div class="muted">Featured job ${esc(DATA.meta.featured)} · judge ⚖️ Arbiter</div>
+    <div class="kv" style="margin-top:10px"><span class="b">bids: ${r.length}</span><span class="b">failures: ${failures}</span><span class="b">badge: ${DATA.agents[DATA.ruling.winner].em} ${esc(DATA.agents[DATA.ruling.winner].name)}</span></div>
+    <h3 style="margin:14px 0 2px;font-size:14px">Top 5</h3>
+    <table>${(function(){let h="<tr><th>#</th><th>Agent</th><th>Model</th><th>Score</th></tr>";
+      r.forEach((x,i)=>{h+=`<tr><td class="rank ${i===0?'r1':''}">${i+1}${i===0?' 🏅':''}</td><td>${x.em} ${esc(x.name)}</td><td class="src">${esc(x.src)}</td><td class="score">${x.score}</td></tr>`;});return h;})()}</table>
+    <h3 style="margin:14px 0 2px;font-size:14px">Badges &amp; ratings</h3>
+    ${(function(){
+      const L=fieldLeaders();
+      const top=candidateIds().slice().sort((a,b)=>(ratingFor(b).overall||0)-(ratingFor(a).overall||0));
+      const alarms=candidateIds().filter(id=>{const x=ratingFor(id);return x.reliability!==null&&x.reliability<0.5;});
+      const graded=DATA.badges.map(badgeGrade);
+      const tally=["EARLY","ONTIME","LATE","FAILED","UNGRADED"].map(k=>{
+        const n=graded.filter(g=>g.key===k).length;
+        return `<span class="b"><span class="${GRADES[k].cls}">${GRADES[k].icon} ${GRADES[k].label}</span> ${n}</span>`;}).join("");
+      return `<div class="kv"><span class="b">badges in the cabinet: ${DATA.badges.length}</span>
+        <span class="b">top rated: ${top.length?esc(DATA.agents[top[0]].em+" "+DATA.agents[top[0]].name)+" · "+ratingFor(top[0]).overall:'<span class="ungraded">UNRATED</span>'}</span></div>
+        <div class="kv" style="margin-top:6px">${tally}</div>
+        <div class="kv" style="margin-top:6px">${FIELD_ORDER.filter(f=>L[f]).map(f=>`<span class="b">${FIELDS[f].em} ${esc(DATA.agents[L[f].agent].name)} ×${L[f].count}</span>`).join("")}</div>
+        ${alarms.length?`<div class="kv" style="margin-top:6px"><span class="b"><span class="alarm">⚠ RELIABILITY ALARM</span> ${alarms.map(id=>esc(DATA.agents[id].name)).join(", ")} — no clean, scorable submission this window. Health check recommended; no restart performed.</span></div>`:''}`;
+    })()}
+    <div class="faint" style="margin-top:10px">In production this refreshes on a schedule: pull the day's bids, tally, post the top 5 to the Arbiter for a ruling, mint the badge, grade the delivery receipt, and write a dated report. Grades come from receipts only — never from a claim.</div>`;}
+
+/* ---------- analyzer ---------- */
+const SKILLMAP=[
+  {re:/(verify|verif|audit|inventor|confirm|reconcil|coverage)/i,skill:"verification / QA",tools:["static analysis","checklist"]},
+  {re:/(crypto|signature|hash|encrypt|token|auth)/i,skill:"security / cryptography",tools:["signing libs","test vectors"]},
+  {re:/(legal|license|contract|compliance|policy|privacy)/i,skill:"compliance",tools:["policy review","checklist"]},
+  {re:/(build|implement|migrat|code|sdk|adapter|integrat|pipeline|api|refactor)/i,skill:"software engineering",tools:["repo","test harness","CI"]},
+  {re:/(red.?team|attack|exploit|threat|injection|fuzz|vuln)/i,skill:"adversarial red-team",tools:["threat model","fuzzers"]},
+  {re:/(design|ui|ux|graphic|layout|brand|landing|hero)/i,skill:"design",tools:["design tool","prototype"]},
+  {re:/(plan|roadmap|schedule|milestone|delivery|dependency)/i,skill:"delivery management",tools:["dependency graph"]},
+  {re:/(data|etl|dataset|clean|normaliz|dashboard|analy)/i,skill:"data engineering",tools:["dataframes","warehouse"]},
+  {re:/(doc|documentation|guide|readme|reference)/i,skill:"technical writing",tools:["doc generator"]},
+  {re:/(govern|ethic|safety|guardrail|oversight)/i,skill:"governance / safety",tools:["rubric","evidence log"]}
+];
+function analyze(){
+  const t=$("#prompt").value.trim();
+  if(!t){$("#analysis").innerHTML='<div class="faint" style="margin-top:10px">Paste a prompt first.</div>';return;}
+  const words=t.split(/\s+/).length;
+  const deliverables=(t.match(/\b(produce|deliver|create|write|map|build|migrate|verify|design|plan|audit|test)\b/gi)||[]).length;
+  const skills=SKILLMAP.filter(s=>s.re.test(t));
+  const heavy=/(build|implement|migrat|end-to-end|pipeline|audit|red.?team)/i.test(t);
+  let cx=1;cx+=Math.min(2,Math.floor(words/60));cx+=(skills.length>2?1:0);cx+=heavy?1:0;cx=Math.max(1,Math.min(5,cx));
+  const traits=[];
+  if(/(verify|audit|test|evidence)/i.test(t))traits.push("high-rigor / receipts-first");
+  if(heavy)traits.push("strong builder");
+  if(/(security|injection|red.?team)/i.test(t))traits.push("security depth");
+  if(!traits.length)traits.push("generalist");
+  const arsenal=[...new Set(skills.flatMap(s=>s.tools))];
+  $("#analysis").innerHTML=`<div class="panel" style="background:var(--panel2)"><b style="color:var(--gold)">Derived job spec</b>
+    <div class="kv" style="margin-top:8px"><span class="b">complexity ${pips(cx)}</span><span class="b">~${words} words</span><span class="b">${deliverables} deliverable-verbs</span></div>
+    <div class="field" style="margin-top:8px"><span class="k">traits needed</span> ${esc(traits.join(" · "))}</div>
+    <div class="field"><span class="k">skill arsenal</span> ${esc(skills.map(s=>s.skill).join(" · ")||"general")}</div>
+    <div class="field"><span class="k">tools</span> ${esc(arsenal.join(" · ")||"—")}</div>
+    <div class="faint" style="margin-top:6px">Heuristic demo engine — swap in an LLM analyzer for real task decomposition.</div></div>`;
+}
+
+/* ---------- auxiliary dev dashboard ---------- */
+function logLine(msg,cls){const el=$("#devlog");const now=new Date().toLocaleTimeString();el.innerHTML=`<div><span class="t">${now}</span> <span class="${cls||''}">${esc(msg)}</span></div>`+el.innerHTML;}
+function renderDevBids(){
+  let h="<tr><th>Agent</th><th>App 1–5</th></tr>";
+  DATA.bids.forEach((b,i)=>{const a=DATA.agents[b.agent];
+    h+=`<tr><td>${a.em} ${esc(a.name)}</td><td><input type="number" min="1" max="5" value="${b.app}" data-i="${i}" oninput="editApp(this)"></td></tr>`;});
+  $("#devbids").innerHTML=h;
+}
+function editApp(inp){let v=Math.max(1,Math.min(5,+inp.value||1));DATA.bids[+inp.dataset.i].app=v;logLine(`${DATA.agents[DATA.bids[+inp.dataset.i].agent].name} application → ${v}`,'g');recompute('bid');}
+function renderDevLB(){
+  let r=rows().sort((a,b)=>b.score-a.score);
+  let h="<tr><th>#</th><th>Agent</th><th>cx</th><th>app</th><th>score</th></tr>";
+  r.forEach((x,i)=>{h+=`<tr class="${i===0?'win':''}"><td class="rank ${i===0?'r1':''}">${i+1}${i===0?' 🏅':''}</td><td>${x.em} ${esc(x.name)}</td><td>${x.jobcx}</td><td>${x.app}</td><td class="score">${x.score}</td></tr>`;});
+  $("#devlb").innerHTML=h;
+}
+/* ---------- dev: badge timing + rating inputs ---------- */
+function deliveredHrs(j){
+  if(!j||!j.dueAt||!j.deliveredAt||!(+j.budgetHrs>0))return "";
+  return +(((Date.parse(j.deliveredAt)-(Date.parse(j.dueAt)-j.budgetHrs*HOUR))/HOUR).toFixed(2));
+}
+function renderDevBadges(){
+  const list=DATA.badges.slice().sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0).slice(0,12);
+  let h="<tr><th>Job</th><th>Agent</th><th>Field</th><th>Budget h</th><th>Delivered h</th><th>Grade</th></tr>";
+  list.forEach(b=>{
+    const j=jobById(b.job), i=DATA.jobs.indexOf(j), g=badgeGrade(b), a=DATA.agents[b.agent]||{em:"",name:b.agent};
+    const F=FIELDS[b.field];
+    h+=`<tr><td class="src">${esc(b.job)}</td><td>${esc(a.em)} ${esc(a.name)}</td><td class="src">${F?F.em+" "+esc(F.label.toUpperCase()):esc(String(b.field))}</td>`
+      +`<td>${i<0?'<span class="ungraded">—</span>':`<input type="number" min="1" max="200" step="1" value="${esc(String(j.budgetHrs||1))}" data-j="${i}" data-f="budget" oninput="editTiming(this)">`}</td>`
+      +`<td>${(i<0||!j.dueAt)?'<span class="ungraded">no deadline</span>':`<input type="number" min="0" max="999" step="0.5" value="${esc(String(deliveredHrs(j)))}" data-j="${i}" data-f="delivered" oninput="editTiming(this)">`}</td>`
+      +`<td id="bg-${esc(b.job)}" class="${g.cls}">${g.icon} ${esc(g.label)}</td></tr>`;});
+  h+=`<tr><td colspan="6" class="faint">Grades are recomputed from these two numbers — nothing here stores a verdict.</td></tr>`;
+  $("#devbadges").innerHTML=h;
+}
+function editTiming(inp){
+  const j=DATA.jobs[+inp.dataset.j]; if(!j)return;
+  if(inp.dataset.f==='budget'){
+    j.budgetHrs=Math.max(1,Math.min(200,+inp.value||1));
+    const sib=document.querySelector('#devbadges input[data-j="'+inp.dataset.j+'"][data-f="delivered"]');
+    if(sib)sib.value=deliveredHrs(j);
+  }else{
+    if(!j.dueAt)return;
+    const hrs=Math.max(0,Math.min(999,+inp.value||0));
+    j.deliveredAt=new Date(Date.parse(j.dueAt)-j.budgetHrs*HOUR+hrs*HOUR).toISOString().replace(".000","");
+    j.failed=false; if(j.status==="FAILED")j.status="AWARDED";
+  }
+  const g=gradeExpedience(j), cell=$("#bg-"+j.id);
+  if(cell){cell.className=g.cls;cell.textContent=g.icon+" "+g.label;}
+  logLine(`${j.id} timing → ${g.label}${g.frac!==null?' ('+Math.round(g.frac*100)+'% of window)':''}`,'g');
+  refreshRatings();
+}
+function renderDevRate(){
+  let h="<tr><th>Agent</th><th>Quality 0–10</th><th>Clean</th><th>Cycles</th></tr>";
+  Object.keys(DATA.agents).forEach(id=>{
+    const a=DATA.agents[id], r=a.rating;
+    if(!r||r.rated===false){h+=`<tr><td>${esc(a.em)} ${esc(a.name)}</td><td colspan="3"><span class="ungraded">UNRATED</span> <span class="faint">not a scored candidate</span></td></tr>`;return;}
+    h+=`<tr><td>${esc(a.em)} ${esc(a.name)}</td>`
+      +`<td><input type="number" min="0" max="10" step="0.1" value="${r.quality===null?'':esc(String(r.quality))}" data-a="${esc(id)}" data-f="quality" oninput="editRating(this)"></td>`
+      +`<td><input type="number" min="0" max="99" step="1" value="${esc(String(r.cleanCycles))}" data-a="${esc(id)}" data-f="clean" oninput="editRating(this)"></td>`
+      +`<td><input type="number" min="1" max="99" step="1" value="${esc(String(r.cyclesOffered))}" data-a="${esc(id)}" data-f="cycles" oninput="editRating(this)"></td></tr>`;});
+  h+=`<tr><td colspan="4" class="faint">Blank quality = no scorable ballots yet → the cell reads UNRATED, never 0-by-assumption.</td></tr>`;
+  $("#devrate").innerHTML=h;
+}
+function editRating(inp){
+  const a=DATA.agents[inp.dataset.a]; if(!a||!a.rating)return;
+  const f=inp.dataset.f, r=a.rating;
+  if(f==='quality') r.quality = inp.value===''? null : Math.max(0,Math.min(10,+inp.value));
+  if(f==='clean')   r.cleanCycles   = Math.max(0,Math.min(99,+inp.value||0));
+  if(f==='cycles')  r.cyclesOffered = Math.max(1,Math.min(99,+inp.value||1));
+  logLine(`${a.name} ${f} → ${inp.value===''?'UNRATED':inp.value}`,'g');
+  refreshRatings();
+}
+function renderDevRatings(){
+  let h="<tr><th>Agent</th><th>🏅</th><th>Q</th><th>E</th><th>R</th><th>Overall</th></tr>";
+  candidateIds().map(ratingFor).sort((a,b)=>(b.overall||0)-(a.overall||0)).forEach(x=>{
+    const a=DATA.agents[x.agent], low=x.reliability!==null&&x.reliability<0.5;
+    h+=`<tr class="${low?'warnrow':''}"><td>${esc(a.em)} ${esc(a.name)}</td><td>${x.badgeCount}</td>`
+      +`<td>${x.quality===null?'<span class="ungraded">—</span>':x.quality.toFixed(1)}</td>`
+      +`<td>${x.expedience===null?'<span class="ungraded">—</span>':x.expedience.toFixed(2)}</td>`
+      +`<td>${x.reliability===null?'<span class="ungraded">—</span>':pct(x.reliability)}</td>`
+      +`<td class="score">${x.overall}</td></tr>`;});
+  $("#devratings").innerHTML=h;
+}
+/* everything that depends on badges or ratings, minus the inputs being typed into */
+function refreshRatings(){renderCabinet();renderRatings();renderDevRatings();renderJobs();renderAgents();renderDaily();updateBadgeStat();}
+
+function recompute(src){
+  W.job=+$("#wJob").value;W.app=+$("#wApp").value;
+  $("#wJobV").textContent=W.job.toFixed(1);$("#wAppV").textContent=W.app.toFixed(1);
+  renderDevLB();renderLB();renderRuling();buildTicker();
+  if(src==='slider')logLine(`weights set to job×${W.job.toFixed(1)}, app×${W.app.toFixed(1)}`);
+}
+function syncJSON(){$("#json").value=JSON.stringify(DATA.bids,null,2);}
+function syncBadgeJSON(){$("#jsonBadges").value=JSON.stringify(DATA.badges,null,2);}
+function applyBadgeJSON(){
+  try{
+    const v=JSON.parse($("#jsonBadges").value);
+    if(!Array.isArray(v))throw new Error("expected an array of badges");
+    v.forEach(b=>{
+      if(!b||typeof b!=="object")throw new Error("each badge must be an object");
+      if(!b.job)throw new Error("badge is missing a job id");
+      if(!DATA.agents[b.agent])throw new Error("unknown agent: "+b.agent);
+      if(!FIELDS[b.field])throw new Error("unknown field: "+b.field);
+      if(b.expedience&&!GRADES[b.expedience])throw new Error("unknown expedience grade: "+b.expedience);
+      if(b.expedience===undefined)b.expedience=null;
+      if(!b.by)b.by="arbiter";
+      if(!b.date)b.date=DATA.meta.cycle;
+    });
+    DATA.badges=v;logLine("applied edited badge JSON ("+v.length+" badges)",'g');
+    renderAll();renderDevBadges();
+  }catch(e){logLine("badge JSON rejected: "+e.message);}
+}
+function applyJSON(){
+  try{const v=JSON.parse($("#json").value);
+    if(!Array.isArray(v))throw new Error("expected an array of bids");
+    v.forEach(b=>{if(!DATA.agents[b.agent])throw new Error("unknown agent: "+b.agent);b.app=Math.max(1,Math.min(5,+b.app||1));});
+    DATA.bids=v;logLine("applied edited JSON ("+v.length+" bids)",'g');
+    renderDevBids();recompute('json');
+  }catch(e){logLine("JSON rejected: "+e.message);}
+}
+function resetData(){DATA=JSON.parse(JSON.stringify(SAMPLE));W={job:1,app:1};awardMsg="";
+  $("#wJob").value=1;$("#wApp").value=1;
+  renderDevBids();renderDevBadges();renderDevRate();syncJSON();syncBadgeJSON();
+  recompute('reset');renderAll();logLine("reset to sample data — badge cabinet restored");}
+
+function renderFoot(){
+  $("#foot").innerHTML=`🎑 <b>AIRIA🦡BADGER</b> ${esc(DATA.meta.ver)} — open agentic talent board · demo build with sample data · runs 100% client-side, no network calls
+    <div class="credit" style="margin-top:6px">©️2026 by Anitakio of the Virtual🦋Elements Company, a WOS of SPHERING3 LLC · MIT licensed · please credit the author and share improvements on the hub</div>`;
+}
+function renderAll(){renderFeatured();renderLB();renderRuling();renderJobs();renderAgents();
+  renderCabinet();renderRatings();renderDaily();buildTicker();renderFoot();updateBadgeStat();}
+
+/* ---------- boot ---------- */
+applyIteration();
+buildBulbs();buildStats();buildTabs();renderAll();
+renderDevBids();renderDevLB();renderDevBadges();renderDevRate();renderDevRatings();
+syncJSON();syncBadgeJSON();
+</script>
+</body>
+</html>

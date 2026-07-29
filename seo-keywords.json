@@ -1,0 +1,122 @@
+{
+  "project": "AIRIA🦡BADGER",
+  "version": "v0.5.4",
+  "owner": "Anitakio — Virtual Elements Company (a WOS of SPHERING3 LLC)",
+  "algorithm": "sha256",
+  "count": 28,
+  "manifest_sha256": "fd153510bafd27811763c96e62ffe407dcb1a4c35de2e4b1cb1ff468c4d43436",
+  "keywords": [
+    {
+      "keyword": "agentic ai",
+      "sha256": "f0e5f53af7e637286fd550896a909bdba17cc905e448efcded6f696b426779b2"
+    },
+    {
+      "keyword": "ai agents",
+      "sha256": "e748f8750672ca8b04b242bef501be5fab814415306bbcf46ca52e70a9e8c9e6"
+    },
+    {
+      "keyword": "agent orchestration",
+      "sha256": "5dc7c7f806c01090c80edc4ef8d0189793261041c7061ae4011f5e65db148920"
+    },
+    {
+      "keyword": "llm orchestration",
+      "sha256": "4ff87bcc305900e35ea664d4caa99c0c0fcad6345caf447cc7f78ecb0a783e1e"
+    },
+    {
+      "keyword": "multi-agent systems",
+      "sha256": "a1f9d63328074e333a9011682e0841596ca10cc52cd107caf453acf43484e515"
+    },
+    {
+      "keyword": "agent leaderboard",
+      "sha256": "bf0eca255afbac48fda0730c44307ba90bb6a6f829a66e41731ac0d5175ca255"
+    },
+    {
+      "keyword": "ai job board",
+      "sha256": "ac02918f59da9c80f52be4ff4b018b24010a015b22ce79e90486f552cac7a8dc"
+    },
+    {
+      "keyword": "agentic job board",
+      "sha256": "2823a74564803e3588fd553560cae422ec6773a2de08b22a593316afcd228ae5"
+    },
+    {
+      "keyword": "agent routing",
+      "sha256": "f5acf4fb4e1c59c11db7cf523d35be33620193fcb9fd27f5064f4ef67baa746b"
+    },
+    {
+      "keyword": "model-agnostic",
+      "sha256": "f64ea6566901fb1b104f72cd129ddd46ed3be5d31c88137040b46da71a476b52"
+    },
+    {
+      "keyword": "agent marketplace",
+      "sha256": "49274f4771518c5d0df9b88d012ae64cfbc4ef413eaca1231f3f13a8535df7df"
+    },
+    {
+      "keyword": "ai task routing",
+      "sha256": "04ad9393b6d92075475941d4fb7784c753028b0493dbb38d1d3da69435667394"
+    },
+    {
+      "keyword": "autonomous agents",
+      "sha256": "1a9f8b2856079cb2b381e563e5ecea4738ef8bd2b5b465b0d4880eb9e9ae5404"
+    },
+    {
+      "keyword": "agent bidding",
+      "sha256": "f8de7ad51d7751a54d1e1f87b113fe8de44b5b95aa7852363d59e8be79ce03ad"
+    },
+    {
+      "keyword": "ai workforce",
+      "sha256": "411b20e6b698b86085e96b21fd6215034127ce5442670dbb13ec97301fa2e4d6"
+    },
+    {
+      "keyword": "agent evaluation",
+      "sha256": "6a4cb7d784168f38ce0a66db5b8102fcd15e6fb8293ea5e15c6baefc782158a0"
+    },
+    {
+      "keyword": "prompt to job",
+      "sha256": "e409efd9aeb1304d79e1752fabded41721091296e03c6ef363e68caa29068821"
+    },
+    {
+      "keyword": "llmops",
+      "sha256": "1d4b6289382b90c6e06c3a85204ce4edd8351cdb98fc9e6a154b64ae8656b9f1"
+    },
+    {
+      "keyword": "ai talent board",
+      "sha256": "10910cf72082a7b307aaa43f220b232b1b109a80a6d8885165c793681d076ae4"
+    },
+    {
+      "keyword": "open source ai",
+      "sha256": "0ced1aa43bb1d0f20f6ceaea5774cf2d26d7b11be24f261278b4c63b49165cd9"
+    },
+    {
+      "keyword": "agent badges",
+      "sha256": "79df858f5a63f42b5216edc0e5ecc86c5e3fc631780f649d4e2b9698bddbe96b"
+    },
+    {
+      "keyword": "agent ratings",
+      "sha256": "48b4f4a1727a6a964720d06a35bf65b764cc5d9ae5741bb9dd88b50c33ded859"
+    },
+    {
+      "keyword": "agent benchmarking",
+      "sha256": "23a885b25b65baff228931d53f33a34f4f8eabccb761a1d677e3943ffdb11a75"
+    },
+    {
+      "keyword": "agent performance tracking",
+      "sha256": "60bcf6a4497812b32fc93af86f3c8cd8616a2b458402c47544294d8b064fffc3"
+    },
+    {
+      "keyword": "agent leaderboard rankings",
+      "sha256": "7057affaf7d60441f688255e5f98523875e4da2c87dc6655d32ebf14c067f9d8"
+    },
+    {
+      "keyword": "agent reliability",
+      "sha256": "27c72c89fe6dd68f1a9fe40a0c33f86840f45cc8bf32bd1da5429a8398552e8b"
+    },
+    {
+      "keyword": "agent scorecard",
+      "sha256": "1aa15fb26aa69e5717ea1fe24329195a2b648f9284f4e3599e1215ee8d6eeae2"
+    },
+    {
+      "keyword": "ai agent evaluation metrics",
+      "sha256": "6012098dc35704d98cff14dbf5a28dd1905febdf1eb518175ed0d36a886f4d89"
+    }
+  ]
+}
